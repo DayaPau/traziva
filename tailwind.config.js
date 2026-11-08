@@ -3,16 +3,28 @@ export default {
   content: [
     "./resources/**/*.blade.php",
     "./resources/**/*.js",
-    "./resources/**/*.vue",
+    "./config/traziva.php",
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+      },
       colors: {
         // Paleta principal
         'agro-primary': '#3C8D40',
         'agro-accent': '#79C86E',
         'agro-sand': '#F2F0E4',
         'agro-dark': '#2F2F2F',
+
+        // Tonos de la referencia visual (demo para la Coordinadora)
+        'agro-forest': '#1F3A2A',   // barra lateral
+        'agro-leaf': '#5E9E5A',     // ítem activo del menú
+        'agro-moss': '#2F7A47',     // botones y producción real
+        'agro-earth': '#C4955F',    // meta productiva / eventos
+        'agro-clay': '#B0644F',     // bajo desempeño
+        'agro-cream': '#F8F7F2',    // fondo de página
 
         // Paleta verde extendida
         'agro-green': {

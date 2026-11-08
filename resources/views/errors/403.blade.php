@@ -1,0 +1,1 @@
+@include('errors.layout', ['codigo' => 403, 'titulo' => 'Acceso no autorizado', 'mensaje' => $exception->getMessage() && $exception->getMessage() !== 'This action is unauthorized.' ? $exception->getMessage() : 'Tu rol no tiene permiso para realizar esta acción o ver esta sección.'])

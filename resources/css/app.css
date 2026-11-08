@@ -2,71 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TIPOGRAFÍA BASE */
 @layer base {
     body {
-        @apply bg-agro-sand text-agro-dark;
-        font-family: 'Inter', 'Nunito', 'Poppins', ui-sans-serif, system-ui, sans-serif;
-        font-weight: 400;
-        line-height: 1.6;
+        @apply bg-agro-cream text-agro-dark font-sans antialiased;
+        line-height: 1.55;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1, h2, h3, h4 {
         @apply font-semibold text-agro-dark;
         line-height: 1.2;
     }
 
-    h1 { @apply text-3xl md:text-4xl; }
-    h2 { @apply text-2xl md:text-3xl; }
-    h3 { @apply text-xl md:text-2xl; }
-    h4 { @apply text-lg md:text-xl; }
+    h1 { @apply font-display text-2xl md:text-3xl; }
+    h2 { @apply text-lg; }
+    h3 { @apply text-base; }
+
+    [x-cloak] { display: none !important; }
 }
 
-/* COMPONENTES PERSONALIZADOS */
 @layer components {
-
-    .btn-primary {
-        @apply px-6 py-3 bg-agro-primary text-white rounded-lg font-semibold 
-               transition-all duration-200 hover:bg-opacity-90 hover:shadow-lg 
-               hover:-translate-y-0.5 focus:outline-none focus:ring-2 
-               focus:ring-agro-primary focus:ring-offset-2 disabled:opacity-50 
-               disabled:cursor-not-allowed;
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
+               transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2
+               disabled:opacity-50 disabled:cursor-not-allowed;
     }
-
-    .btn-secondary {
-        @apply px-6 py-3 bg-white text-agro-primary border-2 border-agro-primary 
-               rounded-lg font-semibold transition-all duration-200 
-               hover:bg-agro-sand hover:border-agro-accent 
-               focus:outline-none focus:ring-2 focus:ring-agro-primary 
-               focus:ring-offset-2;
-    }
-
-    .btn-danger {
-        @apply px-6 py-3 bg-red-600 text-white rounded-lg font-semibold 
-               transition-all duration-200 hover:bg-red-700 hover:shadow-lg 
-               focus:outline-none focus:ring-2 focus:ring-red-500 
-               focus:ring-offset-2;
-    }
+    .btn-primary   { @apply btn bg-agro-moss text-white hover:bg-agro-forest focus:ring-agro-moss; }
+    .btn-secondary { @apply btn bg-white text-agro-moss border border-gray-200 hover:bg-agro-cream focus:ring-agro-moss; }
+    .btn-danger    { @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500; }
 
     .card {
-        @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 
-               transition-shadow duration-200 hover:shadow-md;
-    }
-
-    .card-header {
-        @apply border-b border-gray-200 pb-4 mb-6;
+        @apply bg-white rounded-2xl border border-gray-200/70 shadow-sm p-5 md:p-6;
     }
 
     .input-modern {
-        @apply w-full px-4 py-3 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-agro-primary 
-               focus:border-transparent transition-all duration-200 
-               bg-white text-agro-dark placeholder-gray-400;
+        @apply w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm bg-white text-agro-dark
+               placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-agro-moss/40 focus:border-agro-moss;
     }
+    .input-modern:disabled { @apply bg-gray-50 cursor-not-allowed; }
 
-    .input-modern:disabled {
-        @apply bg-gray-50 cursor-not-allowed;
-    }
-
-    /* puedes seguir con tus otros estilos */
+    .label { @apply block text-sm font-medium text-gray-700 mb-1.5; }
 }

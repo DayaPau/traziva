@@ -1,19 +1,43 @@
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-<table class="w-full text-sm">
-    <thead class="bg-agro-green-100 text-left"><tr>
-        <th class="p-2">Código</th><th>Cultivo</th><th>Nave</th><th>Siembra</th><th>Estado</th><th>Labores</th><th>Aplic.</th><th>Cosechas</th><th>IDC</th>
-    </tr></thead>
-    <tbody>
-    @forelse($plantaciones as $p)
-        <tr class="border-t">
-            <td class="p-2"><a class="text-agro-primary underline" href="{{ route('plantaciones.show', $p) }}">{{ $p->codigo }}</a>@if($p->es_prueba) <span class="text-xs bg-yellow-100 px-1 rounded">prueba</span>@endif</td>
-            <td>{{ $p->cultivo->nombre }}</td><td>{{ $p->nave?->numero ?? '—' }}</td><td>{{ $p->siembra_texto }}</td>
-            <td>{{ $p->estado }}</td><td>{{ $p->labores_count }}</td><td>{{ $p->aplicaciones_count }}</td><td>{{ $p->cosechas_count }}</td>
-            <td>{{ $p->ultimoIdc ? ($p->ultimoIdc->puntaje !== null ? $p->ultimoIdc->puntaje.' ('.$p->ultimoIdc->categoria.')' : $p->ultimoIdc->categoria) : '—' }}</td>
+@php
+    $colorEstado = ['activa' => 'verde', 'inactiva' => 'gris', 'finalizada' => 'tierra'];
+    $colorIdc = ['alto' => 'verde', 'medio' => 'amarillo', 'bajo' => 'rojo', 'incompleto' => 'gris'];
+@endphp
+@if($plantaciones->isEmpty())
+    <x-card>
+        <x-empty-state titulo="Aún no hay plantaciones registradas">
+            Podrás crearlas desde la interfaz en la Fase 2. Para la carga inicial usa
+            <code class="text-xs">php artisan traziva:importar database/data/FORMATO_PRODUCCION_CULTIVOS.xlsx</code>
+        </x-empty-state>
+    </x-card>
+@else
+<x-table>
+    <x-slot:head>
+        <th>Código</th><th>Cultivo</th><th>Nave</th><th>Siembra</th><th>Estado</th>
+        <th class="text-right">Labores</th><th class="text-right">Aplic.</th><th class="text-right">Cosechas</th><th>IDC</th>
+    </x-slot:head>
+    @foreach($plantaciones as $p)
+        <tr class="hover:bg-agro-cream/60">
+            <td class="whitespace-nowrap">
+                <a class="font-mono text-xs text-agro-moss hover:underline" href="{{ route('plantaciones.show', $p) }}">{{ $p->codigo }}</a>
+                @if($p->es_prueba) <x-badge color="azul" class="ml-1">Prueba</x-badge> @endif
+            </td>
+            <td class="font-medium">{{ $p->cultivo->nombre }}</td>
+            <td>{{ $p->nave ? 'Nave '.$p->nave->numero : '—' }}</td>
+            <td class="whitespace-nowrap">{{ $p->siembra_texto }}</td>
+            <td><x-badge :color="$colorEstado[$p->estado] ?? 'gris'">{{ ucfirst($p->estado) }}</x-badge></td>
+            <td class="text-right tabular-nums">{{ $p->labores_count }}</td>
+            <td class="text-right tabular-nums">{{ $p->aplicaciones_count }}</td>
+            <td class="text-right tabular-nums">{{ $p->cosechas_count }}</td>
+            <td>
+                @if($p->ultimoIdc)
+                    <x-badge :color="$colorIdc[$p->ultimoIdc->categoria] ?? 'gris'">
+                        {{ $p->ultimoIdc->puntaje !== null ? number_format($p->ultimoIdc->puntaje, 0) : 'Incompleto' }}
+                    </x-badge>
+                @else
+                    <span class="text-gray-400">—</span>
+                @endif
+            </td>
         </tr>
-    @empty
-        <tr><td colspan="9" class="p-4 text-center">Sin plantaciones. Ejecuta <code>php artisan traziva:importar database/data/FORMATO_PRODUCCION_CULTIVOS.xlsx</code></td></tr>
-    @endforelse
-    </tbody>
-</table>
-</div>
+    @endforeach
+</x-table>
+@endif
