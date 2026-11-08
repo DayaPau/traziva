@@ -19,11 +19,11 @@ class LoginController extends Controller
         $datos = $request->validate(['email' => 'required|email', 'password' => 'required|string']);
 
         if (! Auth::attempt($datos, $request->boolean('remember'))) {
-            return back()->withErrors(['email' => 'Credenciales incorrectas.'])->onlyInput('email');
+            return back()->withErrors(['email' => 'El correo o la contraseña no son correctos.'])->onlyInput('email');
         }
-        if (! $request->user()->estaVigente()) {
+        if ($motivo = $request->user()->motivoBloqueo()) {
             Auth::logout();
-            return back()->withErrors(['email' => 'Tu acceso está inactivo o venció. Contacta al coordinador.'])->onlyInput('email');
+            return back()->withErrors(['email' => $motivo])->onlyInput('email');
         }
 
         $request->session()->regenerate();

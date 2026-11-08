@@ -13,8 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'cuenta.vigente' => \App\Http\Middleware\CuentaVigente::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Límite de intentos en login/registro: mensaje claro en el mismo formulario.
+        $exceptions->render(function (\Illuminate\Http\Exceptions\ThrottleRequestsException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('login', 'registro')) {
+                $minutos = max(1, (int) ceil(($e->getHeaders()['Retry-After'] ?? 60) / 60));
+
+                return back()->withErrors(['email' => "Demasiados intentos. Espera {$minutos} min e inténtalo de nuevo."])->onlyInput('email');
+            }
+        });
     })->create();
