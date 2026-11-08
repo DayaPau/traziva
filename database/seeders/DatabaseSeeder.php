@@ -12,12 +12,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $roles = ['coordinador' => 'Administra usuarios, catálogos y reportes',
-            'responsable' => 'Responsable de producción; registra y valida',
-            'docente' => 'Docente; registra y consulta',
-            'estudiante' => 'Estudiante; registra con acceso temporal'];
+        // Ver matriz de permisos en docs/decisiones.md (D-03).
+        $roles = ['coordinador' => 'Superadministrador: usuarios, catálogos, registros, reportes y auditoría',
+            'responsable' => 'Responsable de producción: crea y modifica plantaciones y registros',
+            'docente' => 'Docente/investigador: solo consulta y descarga reportes',
+            'estudiante' => 'Estudiante/practicante: solo consulta, con acceso temporal'];
         foreach ($roles as $n => $d) {
-            Rol::firstOrCreate(['nombre' => $n], ['descripcion' => $d]);
+            Rol::updateOrCreate(['nombre' => $n], ['descripcion' => $d]);
         }
 
         // Catálogo PROVISIONAL: confirmar categorías reales con Amanecer.
@@ -26,12 +27,17 @@ class DatabaseSeeder extends Seeder
         }
 
         $pass = env('TRAZIVA_SEED_PASSWORD') ?: Str::random(12);
+        $creados = 0;
         foreach (['coordinador', 'responsable', 'docente', 'estudiante'] as $r) {
-            User::firstOrCreate(['email' => "$r@traziva.test"], [
+            $u = User::firstOrCreate(['email' => "$r@traziva.test"], [
                 'name' => ucfirst($r) . ' Demo', 'password' => $pass,
                 'rol_id' => Rol::where('nombre', $r)->value('id'), 'estado' => 'activo',
             ]);
+            $creados += $u->wasRecentlyCreated ? 1 : 0;
         }
-        $this->command?->info("Usuarios demo: <rol>@traziva.test / contraseña: $pass");
+        // Solo se informa la contraseña si se crearon usuarios; los existentes conservan la suya.
+        $this->command?->info($creados
+            ? "Usuarios demo creados: <rol>@traziva.test / contraseña: $pass"
+            : 'Los usuarios demo ya existían; conservan su contraseña.');
     }
 }

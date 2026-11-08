@@ -30,22 +30,32 @@ class User extends Authenticatable
 
     public function esCoordinador(): bool { return $this->tieneRol('coordinador'); }
 
-    /** Quién puede registrar información operativa. */
+    /** Quién puede crear o modificar información operativa (docente y estudiante solo consultan). */
     public function puedeRegistrar(): bool { return $this->tieneRol('coordinador', 'responsable'); }
 
     /** Cuenta habilitada: activa y dentro de su ventana de vigencia (accesos temporales). */
     public function estaVigente(): bool
     {
-        if ($this->estado !== 'activo') {
-            return false;
-        }
+        return $this->motivoBloqueo() === null;
+    }
+
+    /** Explica por qué la cuenta no puede ingresar, o null si está habilitada. */
+    public function motivoBloqueo(): ?string
+    {
         $hoy = today();
-        if ($this->activo_desde && $hoy->lt($this->activo_desde)) {
-            return false;
-        }
-        if ($this->activo_hasta && $hoy->gt($this->activo_hasta)) {
-            return false;
-        }
-        return true;
+
+        return match (true) {
+            $this->estado === 'pendiente' => 'Tu cuenta está pendiente de aprobación por el/la coordinador/a.',
+            $this->estado !== 'activo' => 'Tu cuenta está inactiva. Contacta al coordinador/a.',
+            $this->activo_desde && $hoy->lt($this->activo_desde) => 'Tu acceso empieza el '.$this->activo_desde->format('d/m/Y').'.',
+            $this->activo_hasta && $hoy->gt($this->activo_hasta) => 'Tu acceso venció el '.$this->activo_hasta->format('d/m/Y').'. Contacta al coordinador/a.',
+            default => null,
+        };
+    }
+
+    /** Nombre legible del rol para la interfaz (p. ej. "Responsable de Producción Agrícola"). */
+    public function getRolEtiquetaAttribute(): string
+    {
+        return config('traziva.roles.'.$this->rol?->nombre, $this->rol?->nombre ?? '—');
     }
 }

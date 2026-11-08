@@ -10,7 +10,11 @@ class UsuarioController extends Controller
 {
     public function index()
     {
-        return view('usuarios.index', ['usuarios' => User::with('rol')->orderBy('name')->get(), 'roles' => Rol::orderBy('id')->get()]);
+        return view('usuarios.index', [
+            // Pendientes primero para que el/la coordinador/a los vea de inmediato.
+            'usuarios' => User::with('rol')->orderByRaw("CASE WHEN estado = 'pendiente' THEN 0 ELSE 1 END")->orderBy('name')->get(),
+            'roles' => Rol::orderBy('id')->get()->mapWithKeys(fn (Rol $r) => [$r->id => config("traziva.roles.{$r->nombre}", $r->nombre)]),
+        ]);
     }
 
     public function store(Request $request)
@@ -27,11 +31,23 @@ class UsuarioController extends Controller
         return back()->with('ok', 'Usuario creado.');
     }
 
+    /** Activa (o aprueba, si estaba pendiente) / desactiva una cuenta. */
     public function toggle(Request $request, User $user)
     {
         abort_if($user->id === $request->user()->id, 422, 'No puedes desactivar tu propio usuario.');
-        $user->update(['estado' => $user->estado === 'activo' ? 'inactivo' : 'activo']);
 
-        return back()->with('ok', 'Estado actualizado.');
+        $antes = $user->estado;
+        $user->update(['estado' => $antes === 'activo' ? 'inactivo' : 'activo']);
+
+        \App\Models\Auditoria::create([
+            'user_id' => $request->user()->id,
+            'accion' => $antes === 'pendiente' ? 'aprobar' : 'modificar',
+            'entidad' => 'users',
+            'entidad_id' => $user->id,
+            'valores_antes' => ['estado' => $antes],
+            'valores_despues' => ['estado' => $user->estado],
+        ]);
+
+        return back()->with('ok', $antes === 'pendiente' ? "Cuenta de {$user->name} aprobada." : 'Estado actualizado.');
     }
 }
