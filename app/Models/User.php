@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Auditable, Notifiable;
+
+    public const ESTADOS = ['pendiente' => 'Pendiente', 'activo' => 'Activo', 'inactivo' => 'Inactivo'];
 
     protected $fillable = ['rol_id', 'name', 'email', 'password', 'estado', 'activo_desde', 'activo_hasta'];
     protected $hidden = ['password', 'remember_token'];

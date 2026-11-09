@@ -25,7 +25,8 @@ class RegistroController extends Controller
 
     public function store(RegistroRequest $request)
     {
-        $user = User::create($request->validated() + ['estado' => 'pendiente']);
+        // Sin eventos: se audita una sola vez, con la acción explícita «registro» (abajo).
+        $user = User::withoutEvents(fn () => User::create($request->validated() + ['estado' => 'pendiente']));
 
         Auditoria::create([
             'accion' => 'registro',

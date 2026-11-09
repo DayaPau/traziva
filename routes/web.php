@@ -64,7 +64,11 @@ Route::middleware(['auth', 'cuenta.vigente'])->group(function () {
 
     Route::middleware('role:coordinador')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index')->can('viewAny', User::class);
+        Route::get('/usuarios/crear', [UsuarioController::class, 'create'])->name('usuarios.create')->can('create', User::class);
         Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store')->can('create', User::class);
+        Route::get('/usuarios/{user}/editar', [UsuarioController::class, 'edit'])->name('usuarios.edit')->can('update', 'user');
+        Route::put('/usuarios/{user}', [UsuarioController::class, 'update'])->name('usuarios.update')->can('update', 'user');
         Route::patch('/usuarios/{user}/estado', [UsuarioController::class, 'toggle'])->name('usuarios.toggle')->can('update', 'user');
+        Route::put('/usuarios/{user}/clave', [UsuarioController::class, 'restablecerClave'])->name('usuarios.clave')->can('update', 'user');
     });
 });

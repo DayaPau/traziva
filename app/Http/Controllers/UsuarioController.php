@@ -2,52 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClaveRequest;
+use App\Http\Requests\UsuarioRequest;
 use App\Models\Rol;
 use App\Models\User;
+use App\Services\Usuarios\GestionUsuarios;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
+/** Usuarios y roles (solo coordinador/a). Las reglas de negocio viven en GestionUsuarios. */
 class UsuarioController extends Controller
 {
-    public function index()
+    public function __construct(private GestionUsuarios $gestion) {}
+
+    public function index(Request $request)
     {
-        return view('usuarios.index', [
+        $f = $request->validate([
+            'q' => ['nullable', 'string', 'max:80'],
+            'rol_id' => ['nullable', 'integer'],
+            'estado' => ['nullable', Rule::in(array_keys(User::ESTADOS))],
+        ]);
+
+        $usuarios = User::with('rol')
+            ->when($f['q'] ?? null, fn ($q, $t) => $q->where(fn ($w) => $w->where('name', 'like', "%$t%")->orWhere('email', 'like', "%$t%")))
+            ->when($f['rol_id'] ?? null, fn ($q, $r) => $q->where('rol_id', $r))
+            ->when($f['estado'] ?? null, fn ($q, $e) => $q->where('estado', $e))
             // Pendientes primero para que el/la coordinador/a los vea de inmediato.
-            'usuarios' => User::with('rol')->orderByRaw("CASE WHEN estado = 'pendiente' THEN 0 ELSE 1 END")->orderBy('name')->get(),
-            'roles' => Rol::orderBy('id')->get()->mapWithKeys(fn (Rol $r) => [$r->id => config("traziva.roles.{$r->nombre}", $r->nombre)]),
+            ->orderByRaw("CASE WHEN estado = 'pendiente' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get();
+
+        return view('usuarios.index', [
+            'usuarios' => $usuarios,
+            'roles' => $this->roles(),
+            'pendientes' => User::where('estado', 'pendiente')->count(),
         ]);
     }
 
-    public function store(Request $request)
+    public function create()
     {
-        $d = $request->validate([
-            'name' => 'required|string|max:120',
-            'email' => 'required|email|max:150|unique:users,email',
-            'password' => 'required|string|min:8',
-            'rol_id' => 'required|exists:roles,id',
-            'activo_hasta' => 'nullable|date|after:today',
-        ]);
-        User::create($d + ['estado' => 'activo']);
-
-        return back()->with('ok', 'Usuario creado.');
+        return view('usuarios.form', ['u' => new User(['estado' => 'activo']), 'roles' => $this->roles()]);
     }
 
-    /** Activa (o aprueba, si estaba pendiente) / desactiva una cuenta. */
+    public function store(UsuarioRequest $request)
+    {
+        $u = $this->gestion->crear($request->validated());
+
+        return redirect()->route('usuarios.index')->with('ok', "Usuario {$u->name} creado.");
+    }
+
+    public function edit(User $user)
+    {
+        return view('usuarios.form', ['u' => $user, 'roles' => $this->roles()]);
+    }
+
+    public function update(UsuarioRequest $request, User $user)
+    {
+        $this->gestion->actualizar($user, $request->validated(), $request->user());
+
+        return redirect()->route('usuarios.index')->with('ok', "Cambios de {$user->name} guardados.");
+    }
+
+    /** Aprobar (pendiente → activo), activar o desactivar desde el listado. */
     public function toggle(Request $request, User $user)
     {
-        abort_if($user->id === $request->user()->id, 422, 'No puedes desactivar tu propio usuario.');
-
         $antes = $user->estado;
-        $user->update(['estado' => $antes === 'activo' ? 'inactivo' : 'activo']);
+        $this->gestion->alternarEstado($user, $request->user());
 
-        \App\Models\Auditoria::create([
-            'user_id' => $request->user()->id,
-            'accion' => $antes === 'pendiente' ? 'aprobar' : 'modificar',
-            'entidad' => 'users',
-            'entidad_id' => $user->id,
-            'valores_antes' => ['estado' => $antes],
-            'valores_despues' => ['estado' => $user->estado],
-        ]);
+        return back()->with('ok', match ($antes) {
+            'pendiente' => "Cuenta de {$user->name} aprobada.",
+            'activo' => "Cuenta de {$user->name} desactivada.",
+            default => "Cuenta de {$user->name} activada.",
+        });
+    }
 
-        return back()->with('ok', $antes === 'pendiente' ? "Cuenta de {$user->name} aprobada." : 'Estado actualizado.');
+    public function restablecerClave(ClaveRequest $request, User $user)
+    {
+        $this->gestion->restablecerClave($user, $request->validated('password'));
+
+        return redirect()->route('usuarios.edit', $user)
+            ->with('ok', "Contraseña de {$user->name} restablecida. Comunícasela por un canal seguro.");
+    }
+
+    private function roles()
+    {
+        return Rol::orderBy('id')->get()->mapWithKeys(fn (Rol $r) => [$r->id => config("traziva.roles.{$r->nombre}", $r->nombre)]);
     }
 }

@@ -7,6 +7,9 @@ use App\Models\Auditoria;
 /**
  * Registra en la tabla `auditoria` (solo inserción) quién creó, modificó o
  * eliminó un registro crítico (RNF-07).
+ *
+ * Nunca guarda los atributos ocultos del modelo ($hidden: contraseña, token de sesión)
+ * ni deja filas vacías cuando solo cambian campos técnicos (updated_at, remember_token).
  */
 trait Auditable
 {
@@ -21,6 +24,14 @@ trait Auditable
     {
         if (Auditoria::$silenciada) {
             return;
+        }
+
+        $excluir = array_flip([...$this->getHidden(), 'created_at', 'updated_at', 'deleted_at']);
+        $antes = $antes === null ? null : array_diff_key($antes, $excluir);
+        $despues = $despues === null ? null : array_diff_key($despues, $excluir);
+
+        if ($accion === 'modificar' && ! $despues) {
+            return; // solo cambiaron campos técnicos u ocultos
         }
 
         Auditoria::create([
