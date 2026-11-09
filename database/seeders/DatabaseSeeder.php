@@ -26,18 +26,28 @@ class DatabaseSeeder extends Seeder
             CategoriaCalidad::firstOrCreate(['nombre' => $n], ['orden' => $i + 1]);
         }
 
-        $pass = env('TRAZIVA_SEED_PASSWORD') ?: Str::random(12);
+        // Usuarios demo (@traziva.test). Con TRAZIVA_SEED_PASSWORD en .env, se les aplica esa contraseña
+        // también si ya existían (así todo el equipo prueba con la misma). Nunca toca cuentas reales.
+        $desdeEnv = (string) env('TRAZIVA_SEED_PASSWORD', '');
+        $pass = $desdeEnv !== '' ? $desdeEnv : Str::random(12);
         $creados = 0;
         foreach (['coordinador', 'responsable', 'docente', 'estudiante'] as $r) {
             $u = User::firstOrCreate(['email' => "$r@traziva.test"], [
                 'name' => ucfirst($r) . ' Demo', 'password' => $pass,
                 'rol_id' => Rol::where('nombre', $r)->value('id'), 'estado' => 'activo',
             ]);
-            $creados += $u->wasRecentlyCreated ? 1 : 0;
+            if ($u->wasRecentlyCreated) {
+                $creados++;
+            } elseif ($desdeEnv !== '') {
+                $u->update(['password' => $desdeEnv]);
+            }
         }
-        // Solo se informa la contraseña si se crearon usuarios; los existentes conservan la suya.
-        $this->command?->info($creados
-            ? "Usuarios demo creados: <rol>@traziva.test / contraseña: $pass"
-            : 'Los usuarios demo ya existían; conservan su contraseña.');
+
+        // La contraseña tomada de .env no se imprime (no dejar secretos en consola ni logs).
+        $this->command?->info(match (true) {
+            $desdeEnv !== '' => 'Usuarios demo <rol>@traziva.test listos con la contraseña de TRAZIVA_SEED_PASSWORD (.env).',
+            $creados > 0 => "Usuarios demo creados: <rol>@traziva.test / contraseña: $pass",
+            default => 'Los usuarios demo ya existían; conservan su contraseña.',
+        });
     }
 }
