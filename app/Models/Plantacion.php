@@ -39,9 +39,23 @@ class Plantacion extends Model
     public function cosechas() { return $this->hasMany(Cosecha::class); }
     public function idcCalculos() { return $this->hasMany(IdcCalculo::class); }
 
+    public function creador() { return $this->belongsTo(User::class, 'created_by'); }
+
     public function ultimoIdc()
     {
         return $this->hasOne(IdcCalculo::class)->latestOfMany('calculado_en');
+    }
+
+    public const ESTADOS = ['activa' => 'Activa', 'inactiva' => 'Inactiva', 'finalizada' => 'Finalizada'];
+    public const ETAPAS = ['crecimiento' => 'Crecimiento', 'floracion' => 'Floración', 'cosecha' => 'Cosecha'];
+    public const PERIODOS_META = ['mensual' => 'Mensual', 'anual' => 'Anual', 'ciclo_total' => 'Ciclo total'];
+    public const PRECISIONES = ['dia' => 'Día exacto', 'mes' => 'Solo mes', 'anio' => 'Solo año'];
+
+    /** Con labores, aplicaciones, eventos o cosechas no se elimina: se cambia su estado. */
+    public function tieneRegistros(): bool
+    {
+        return $this->labores()->exists() || $this->aplicaciones()->exists()
+            || $this->eventos()->exists() || $this->cosechas()->exists();
     }
 
     /** Fecha de siembra formateada respetando la precisión original del dato. */

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Nave extends Model
 {
+    use Auditable;
+
     protected $table = 'naves';
     protected $fillable = ['numero', 'descripcion', 'activo'];
     protected $casts = ['activo' => 'boolean'];

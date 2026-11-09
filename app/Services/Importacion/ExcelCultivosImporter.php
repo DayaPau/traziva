@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date as XlDate;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use App\Services\Plantaciones\CodigoPlantacion;
 
 /**
  * Importa el formato "PRODUCCIÓN CULTIVOS" de Amanecer (una hoja por cultivo).
@@ -92,7 +93,7 @@ class ExcelCultivosImporter
     private function procesarHoja(Worksheet $hoja): void
     {
         $titulo = trim($hoja->getTitle());
-        $cultivo = Cultivo::firstOrCreate(['nombre' => $this->bonito($titulo)]);
+        $cultivo = Cultivo::firstOrCreate(['nombre' => $this->bonito($titulo)], ['sigla' => CodigoPlantacion::sigla($this->bonito($titulo))]);
         $this->contar($cultivo->wasRecentlyCreated ? 'cultivos_creados' : 'cultivos_existentes');
 
         $filaLabores = $this->filaDe($hoja, 'labores de campo');
@@ -145,7 +146,7 @@ class ExcelCultivosImporter
     private function leerPlantaciones(Worksheet $hoja, string $titulo, Cultivo $cultivo, int $filaLabores): array
     {
         $creadas = [];
-        $prefijo = strtoupper(substr(Str::ascii($this->bonito($titulo)), 0, 3));
+        $prefijo = CodigoPlantacion::sigla($cultivo);
 
         for ($r = 2; $r < $filaLabores; $r++) {
             $raw = [];
@@ -491,9 +492,8 @@ class ExcelCultivosImporter
 
     private function codigo(string $prefijo, ?string $nave, ?Carbon $siembra, string $prec): string
     {
-        $n = $nave !== null ? 'N' . str_pad(preg_replace('/\D/', '', $nave) ?: $nave, 2, '0', STR_PAD_LEFT) : 'SN';
-        $f = $siembra ? $siembra->format($prec === 'anio' ? 'Y' : 'Ym') : 'SF';
-        $base = "$prefijo-$n-$f";
+        // Misma regla que el formulario; aquí se agrega el control de duplicados en memoria (modo simulación).
+        $base = CodigoPlantacion::base($prefijo, $nave, $siembra, $prec);
         $codigo = $base;
         $i = 2;
         while (isset($this->codigosUsados[$codigo])) {
