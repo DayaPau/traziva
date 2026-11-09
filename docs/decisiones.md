@@ -46,3 +46,23 @@ Cada una indica quién la tomó y cuándo, para poder defenderla ante el tribuna
 
 ## D-07 · Entorno de pruebas
 - Las pruebas usan SQLite en memoria y no tocan la base MySQL. En Laragon se habilitaron las extensiones `pdo_sqlite` y `zip` en `php.ini` (respaldo: `php.ini.bak-traziva`). `zip` también es necesaria para leer el Excel con PhpSpreadsheet.
+
+## D-08 · Catálogos genéricos y desactivación (Fase 2)
+- **Decisión:** los 6 catálogos (cultivos, naves, tipos de labor, insumos, plagas/enfermedades, categorías de calidad) se definen en `App\Support\Catalogos` y los atiende un único `CatalogoController` con dos vistas. Tienen la misma forma; seis controladores casi idénticos serían duplicación.
+- **Nada se borra:** se desactiva (`activo = false`). Un registro inactivo no se ofrece en formularios nuevos, pero se conserva en el historial y en las plantaciones que ya lo usan.
+- **Quién:** coordinador/a y responsable de producción (Gate `gestionar-catalogos`). Cada cambio queda auditado.
+- **Categorías de calidad:** marcadas como **provisionales** en la interfaz (pendiente #1).
+
+## D-09 · Código de plantación
+- **Formato:** `SIGLA-NAVE-AAAAMM`, p. ej. `FRU-N06-202509` (`SN` sin nave, `SF` sin fecha; solo `AAAA` si la siembra se conoce por año). Si ya existe, se agrega `-2`, `-3`…
+- **Sigla:** campo editable del cultivo; por defecto, las 3 primeras letras del nombre. La regla vive en `CodigoPlantacion` y la usan tanto el formulario como el importador (no hay lógica duplicada).
+- El código se sugiere automáticamente en el formulario y el usuario puede editarlo (mayúsculas, números y guiones; único).
+
+## D-10 · Reglas del formulario de plantación
+- Cultivo, nave, fecha de siembra y estado son obligatorios al crear. Al **editar** una plantación importada que no tenía nave o fecha, esos campos pueden seguir vacíos, para no bloquear la corrección de otros datos (el importador las dejó vacías a propósito por ser dudosas).
+- Fecha de siembra: no futura y no anterior a 2018 (misma regla que el importador). Si la precisión es "mes" se guarda el día 1; si es "año", el 1 de enero.
+- Inicio estimado de cosecha ≥ siembra; salida estimada > siembra y ≥ inicio de cosecha.
+- Camas, plantas y meta > 0. La meta y su período van juntos (uno exige el otro).
+- No puede repetirse la combinación cultivo + nave + fecha de siembra.
+- Responsable: un usuario activo con rol coordinador/a o responsable.
+- Eliminación: solo plantaciones **sin** labores, aplicaciones, eventos ni cosechas (soft delete). Con registros, se cambia el estado.

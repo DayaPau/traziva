@@ -20,6 +20,9 @@ class PlantacionPolicy
 
     public function update(User $user, Plantacion $plantacion): bool { return $user->puedeRegistrar(); }
 
+    /** Solo se elimina si no tiene registros (lo verifica el controlador). */
+    public function delete(User $user, Plantacion $plantacion): bool { return $user->puedeRegistrar(); }
+
     /** Registrar labores, aplicaciones, eventos, cosechas y recalcular el IDC. */
     public function registrar(User $user, Plantacion $plantacion): bool { return $user->puedeRegistrar(); }
 }

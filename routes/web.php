@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistroController;
+use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\CosechaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PlantacionController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\UsuarioController;
+use App\Models\Plantacion;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +27,29 @@ Route::middleware(['auth', 'cuenta.vigente'])->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    Route::get('/plantaciones', [PlantacionController::class, 'index'])->name('plantaciones.index')->can('viewAny', \App\Models\Plantacion::class);
+    // Coordinador/a y responsable: crear y editar plantaciones, catálogos y registros.
+    Route::middleware('role:coordinador,responsable')->group(function () {
+        Route::get('/plantaciones/crear', [PlantacionController::class, 'create'])->name('plantaciones.create')->can('create', Plantacion::class);
+        Route::post('/plantaciones', [PlantacionController::class, 'store'])->name('plantaciones.store')->can('create', Plantacion::class);
+        Route::get('/plantaciones/sugerir-codigo', [PlantacionController::class, 'sugerirCodigo'])->name('plantaciones.sugerir-codigo')->can('create', Plantacion::class);
+        Route::get('/plantaciones/{plantacion}/editar', [PlantacionController::class, 'edit'])->name('plantaciones.edit')->can('update', 'plantacion');
+        Route::put('/plantaciones/{plantacion}', [PlantacionController::class, 'update'])->name('plantaciones.update')->can('update', 'plantacion');
+        Route::patch('/plantaciones/{plantacion}/estado', [PlantacionController::class, 'cambiarEstado'])->name('plantaciones.estado')->can('update', 'plantacion');
+        Route::delete('/plantaciones/{plantacion}', [PlantacionController::class, 'destroy'])->name('plantaciones.destroy')->can('delete', 'plantacion');
+
+        Route::middleware('can:gestionar-catalogos')->prefix('catalogos/{catalogo}')->name('catalogos.')
+            ->whereIn('catalogo', array_keys(\App\Support\Catalogos::todos()))
+            ->group(function () {
+                Route::get('/', [CatalogoController::class, 'index'])->name('index');
+                Route::get('/crear', [CatalogoController::class, 'create'])->name('create');
+                Route::post('/', [CatalogoController::class, 'store'])->name('store');
+                Route::get('/{id}/editar', [CatalogoController::class, 'edit'])->name('edit')->whereNumber('id');
+                Route::put('/{id}', [CatalogoController::class, 'update'])->name('update')->whereNumber('id');
+                Route::patch('/{id}/estado', [CatalogoController::class, 'toggle'])->name('toggle')->whereNumber('id');
+            });
+    });
+
+    Route::get('/plantaciones', [PlantacionController::class, 'index'])->name('plantaciones.index')->can('viewAny', Plantacion::class);
     Route::get('/plantaciones/{plantacion}', [PlantacionController::class, 'show'])->name('plantaciones.show')->can('view', 'plantacion');
 
     Route::middleware('role:coordinador,responsable')->group(function () {

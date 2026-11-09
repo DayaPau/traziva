@@ -28,7 +28,7 @@
         @foreach($menu as $item)
             @if($item['ruta'])
                 @php $activo = request()->routeIs($item['activo']); @endphp
-                <a href="{{ route($item['ruta']) }}" @if($activo) aria-current="page" @endif
+                <a href="{{ route($item['ruta'], $item['params'] ?? []) }}" @if($activo) aria-current="page" @endif
                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors {{ $activo ? 'bg-agro-leaf text-white font-medium' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                     <x-icon :name="$item['icono']" class="w-[18px] h-[18px]" /> {{ $item['texto'] }}
                 </a>

@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(fn (User $user) => $user->esCoordinador() ? true : null);
         Gate::define('exportar', fn (User $user) => true);          // D-04: todos los roles exportan CSV
         Gate::define('ver-auditoria', fn (User $user) => false);    // solo coordinador/a (vía before)
+        Gate::define('gestionar-catalogos', fn (User $user) => $user->puedeRegistrar());
 
         // Cada cosecha nueva o modificada recalcula el IDC parcial de su plantación.
         $recalcular = fn (Cosecha $c) => app(IdcCalculator::class)->calcular($c->plantacion, 'parcial', auth()->id());

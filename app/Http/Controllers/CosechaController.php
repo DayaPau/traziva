@@ -21,6 +21,6 @@ class CosechaController extends Controller
 
         $plantacion->cosechas()->create($d + ['registrado_por' => $request->user()->id]);
 
-        return back()->with('ok', 'Cosecha registrada.');
+        return redirect()->to(route('plantaciones.show', $plantacion).'#cosechas')->with('ok', 'Cosecha registrada. El IDC parcial se recalculó.');
     }
 }
