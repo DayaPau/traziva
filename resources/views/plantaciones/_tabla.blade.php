@@ -1,11 +1,10 @@
 @php
     $colorEstado = ['activa' => 'verde', 'inactiva' => 'gris', 'finalizada' => 'tierra'];
-    $colorIdc = ['alto' => 'verde', 'medio' => 'amarillo', 'bajo' => 'rojo', 'incompleto' => 'gris'];
 @endphp
 @if($plantaciones->isEmpty())
     <x-card>
         <x-empty-state titulo="Aún no hay plantaciones registradas">
-            Podrás crearlas desde la interfaz en la Fase 2. Para la carga inicial usa
+            Créalas desde «Cultivos → Registrar nueva plantación». Para la carga inicial desde Excel usa
             <code class="text-xs">php artisan traziva:importar database/data/FORMATO_PRODUCCION_CULTIVOS.xlsx</code>
         </x-empty-state>
     </x-card>
@@ -28,15 +27,7 @@
             <td class="text-right tabular-nums">{{ $p->labores_count }}</td>
             <td class="text-right tabular-nums">{{ $p->aplicaciones_count }}</td>
             <td class="text-right tabular-nums">{{ $p->cosechas_count }}</td>
-            <td>
-                @if($p->ultimoIdc)
-                    <x-badge :color="$colorIdc[$p->ultimoIdc->categoria] ?? 'gris'">
-                        {{ $p->ultimoIdc->puntaje !== null ? number_format($p->ultimoIdc->puntaje, 0) : 'Incompleto' }}
-                    </x-badge>
-                @else
-                    <span class="text-gray-400">—</span>
-                @endif
-            </td>
+            <td>@include('plantaciones._idc', ['idc' => $p->ultimoIdc])</td>
         </tr>
     @endforeach
 </x-table>

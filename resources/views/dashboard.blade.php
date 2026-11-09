@@ -12,7 +12,7 @@
     @endforeach
 </div>
 
-<x-alert tipo="info" class="mb-6">Los gráficos de producción, estados, desempeño y eventos fitosanitarios se incorporan en la Fase 5.</x-alert>
+<x-alert tipo="info" class="mb-6">Los gráficos de producción, estados, desempeño y eventos fitosanitarios se incorporan en el Sprint 7.</x-alert>
 
 <h2 class="mb-3">Plantaciones</h2>
 @include('plantaciones._tabla', ['plantaciones' => $plantaciones])

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-/** Centro de descargas CSV. Los reportes adicionales se agregan en la Fase 6. */
+/** Centro de descargas CSV. Los reportes adicionales se agregan en el Sprint 7. */
 class ReporteController extends Controller
 {
     public function index()

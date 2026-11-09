@@ -117,13 +117,18 @@ class PlantacionController extends Controller
         return redirect()->route('plantaciones.show', $plantacion)->with('ok', 'Cambios guardados.');
     }
 
-    /** Cambio rápido de estado desde el listado (activa / inactiva / finalizada). */
+    /** Cambio rápido de estado (y etapa, si se envía) desde el listado. Queda auditado por el modelo. */
     public function cambiarEstado(Request $request, Plantacion $plantacion)
     {
-        $d = $request->validate(['estado' => ['required', Rule::in(['activa', 'inactiva', 'finalizada'])]]);
+        $d = $request->validate([
+            'estado' => ['required', Rule::in(array_keys(Plantacion::ESTADOS))],
+            'etapa' => ['sometimes', 'nullable', Rule::in(array_keys(Plantacion::ETAPAS))],
+        ]);
         $plantacion->update($d);
 
-        return back()->with('ok', "{$plantacion->codigo}: estado cambiado a «{$plantacion->estado}».");
+        $etapa = $plantacion->etapa ? ', etapa «'.Plantacion::ETAPAS[$plantacion->etapa].'»' : '';
+
+        return back()->with('ok', "{$plantacion->codigo}: estado «".Plantacion::ESTADOS[$plantacion->estado]."»{$etapa}.");
     }
 
     /** Solo se retira (soft delete) una plantación SIN registros; si tiene historial se cambia su estado. */

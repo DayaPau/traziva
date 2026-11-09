@@ -31,10 +31,10 @@
 {{-- Pestañas: la activa se guarda en la URL (#cosechas) para volver a ella tras registrar algo. --}}
 <div x-data="{ tab: (location.hash.slice(1) in @js($pestanas)) ? location.hash.slice(1) : 'resumen' }"
      x-init="$watch('tab', t => history.replaceState(null, '', '#' + t))">
-    <nav class="flex gap-1 overflow-x-auto border-b border-gray-200 mb-6" role="tablist">
+    <nav class="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 mb-6" role="tablist">
         @foreach($pestanas as $clave => $texto)
             <button type="button" role="tab" @click="tab = '{{ $clave }}'" :aria-selected="tab === '{{ $clave }}'"
-                    class="whitespace-nowrap px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors"
+                    class="whitespace-nowrap px-4 py-2.5 text-sm border-b-2 transition-colors"
                     :class="tab === '{{ $clave }}' ? 'border-agro-moss text-agro-moss font-semibold' : 'border-transparent text-gray-500 hover:text-gray-800'">
                 {{ $texto }}
             </button>
@@ -93,7 +93,7 @@
     {{-- LABORES --}}
     <div x-show="tab === 'labores'" x-cloak role="tabpanel">
         @if($labores->isEmpty())
-            <x-card><x-empty-state titulo="Sin labores culturales registradas" icono="portapapeles">El registro de labores se habilita en la Fase 3.</x-empty-state></x-card>
+            <x-card><x-empty-state titulo="Sin labores culturales registradas" icono="portapapeles">El registro de labores se habilita en el Sprint 6.</x-empty-state></x-card>
         @else
             <x-table>
                 <x-slot:head><th>Fecha</th><th>Labor</th><th>Descripción</th><th>Observaciones</th><th>Registró</th></x-slot:head>
@@ -108,7 +108,7 @@
     {{-- APLICACIONES --}}
     <div x-show="tab === 'aplicaciones'" x-cloak role="tabpanel">
         @if($aplicaciones->isEmpty())
-            <x-card><x-empty-state titulo="Sin aplicaciones registradas">El registro de aplicaciones se habilita en la Fase 3.</x-empty-state></x-card>
+            <x-card><x-empty-state titulo="Sin aplicaciones registradas">El registro de aplicaciones se habilita en el Sprint 6.</x-empty-state></x-card>
         @else
             <x-table>
                 <x-slot:head><th>Fecha</th><th>Objetivo</th><th>Plaga / enfermedad</th><th>Productos y dosis</th></x-slot:head>
@@ -134,7 +134,7 @@
     {{-- EVENTOS --}}
     <div x-show="tab === 'eventos'" x-cloak role="tabpanel">
         @if($eventos->isEmpty())
-            <x-card><x-empty-state titulo="Sin eventos fitosanitarios registrados" icono="auditoria">El registro de eventos se habilita en la Fase 3.</x-empty-state></x-card>
+            <x-card><x-empty-state titulo="Sin eventos fitosanitarios registrados" icono="auditoria">El registro de eventos se habilita en el Sprint 6.</x-empty-state></x-card>
         @else
             <x-table>
                 <x-slot:head><th>Fecha</th><th>Plaga / enfermedad</th><th>Nivel</th><th>Descripción</th></x-slot:head>
@@ -150,7 +150,7 @@
     {{-- COSECHAS --}}
     <div x-show="tab === 'cosechas'" x-cloak role="tabpanel" class="space-y-6">
         @can('registrar', $p)
-            <x-card titulo="Registrar cosecha" subtitulo="La cantidad aprovechable se calcula sola (cantidad − merma). Registro completo de postcosecha en la Fase 4.">
+            <x-card titulo="Registrar cosecha" subtitulo="La cantidad aprovechable se calcula sola (cantidad − merma). Registro completo de postcosecha en el Sprint 6.">
                 <form method="POST" action="{{ route('cosechas.store', $p) }}" class="grid gap-4 md:grid-cols-5 items-end">
                     @csrf
                     <x-input name="fecha_cosecha" label="Fecha" type="date" required max="{{ today()->toDateString() }}" />

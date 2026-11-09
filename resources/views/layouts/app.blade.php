@@ -62,10 +62,10 @@
             <button type="button" class="lg:hidden -ml-1 p-1.5 rounded-lg text-gray-600 hover:bg-gray-100" @click="menuAbierto = true" aria-label="Abrir menú">
                 <x-icon name="menu" class="w-6 h-6" />
             </button>
-            <span class="text-sm text-gray-600 truncate">Amanecer Biocentro Académico</span>
+            <span class="text-sm text-gray-600 truncate min-w-0">Amanecer Biocentro Académico</span>
             <div class="ml-auto flex items-center gap-3 min-w-0">
                 <span class="hidden sm:block text-sm text-gray-700 truncate">{{ $usuario->name }}</span>
-                <x-badge color="verde">{{ $usuario->rol_etiqueta }}</x-badge>
+                <x-badge color="verde" title="{{ $usuario->rol_etiqueta }}"><span class="sm:hidden">{{ ucfirst($usuario->rol?->nombre) }}</span><span class="hidden sm:inline">{{ $usuario->rol_etiqueta }}</span></x-badge>
             </div>
         </div>
     </header>

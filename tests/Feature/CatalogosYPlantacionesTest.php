@@ -158,6 +158,31 @@ class CatalogosYPlantacionesTest extends TestCase
         $this->actingAs($resp)->patch("/plantaciones/{$p->id}/estado", ['estado' => 'borrada'])->assertSessionHasErrors('estado');
     }
 
+    public function test_cambio_rapido_de_estado_y_etapa_queda_auditado(): void
+    {
+        $resp = $this->usuario('responsable');
+        $this->actingAs($resp)->post('/plantaciones', $this->datosPlantacion());
+        $p = Plantacion::firstOrFail();
+
+        $this->actingAs($resp)->patch("/plantaciones/{$p->id}/estado", ['estado' => 'inactiva', 'etapa' => 'cosecha'])->assertRedirect();
+
+        $p->refresh();
+        $this->assertSame(['inactiva', 'cosecha'], [$p->estado, $p->etapa]);
+        $a = Auditoria::where('entidad', 'plantaciones')->where('entidad_id', $p->id)->where('accion', 'modificar')->latest('id')->firstOrFail();
+        $this->assertSame(['estado' => 'activa', 'etapa' => 'crecimiento'], $a->valores_antes);
+        $this->assertSame(['estado' => 'inactiva', 'etapa' => 'cosecha'], $a->valores_despues);
+        $this->actingAs($resp)->get("/plantaciones/{$p->id}")->assertSee('inactiva')->assertSee('cosecha');
+
+        $this->actingAs($resp)->patch("/plantaciones/{$p->id}/estado", ['estado' => 'activa', 'etapa' => 'madurez'])->assertSessionHasErrors('etapa');
+    }
+
+    public function test_listado_muestra_incompleto_si_no_hay_idc(): void
+    {
+        $this->actingAs($this->usuario('responsable'))->post('/plantaciones', $this->datosPlantacion());
+
+        $this->actingAs($this->usuario('docente'))->get('/plantaciones')->assertOk()->assertSee('Incompleto');
+    }
+
     public function test_solo_se_elimina_plantacion_sin_registros(): void
     {
         $resp = $this->usuario('responsable');
