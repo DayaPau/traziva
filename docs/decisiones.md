@@ -66,3 +66,17 @@ Cada una indica quién la tomó y cuándo, para poder defenderla ante el tribuna
 - No puede repetirse la combinación cultivo + nave + fecha de siembra.
 - Responsable: un usuario activo con rol coordinador/a o responsable.
 - Eliminación: solo plantaciones **sin** labores, aplicaciones, eventos ni cosechas (soft delete). Con registros, se cambia el estado.
+
+## D-11 · Gestión de usuarios (Sprint 5, S5-04)
+- Solo el/la coordinador/a crea, edita, aprueba, activa/desactiva y restablece contraseñas.
+- **Restablecer contraseña:** el/la coordinador/a fija una contraseña nueva y la comunica por un canal seguro. No hay correo automático (fuera del alcance). Se cierra la sesión recordada del usuario.
+- **Invariantes:** nadie puede desactivarse ni cambiarse el rol a sí mismo; siempre queda al menos un/a coordinador/a activo/a. Viven en `GestionUsuarios`.
+- **Acceso temporal:** `activo_desde`/`activo_hasta`. Al crear, `activo_hasta` no puede estar en el pasado; al editar sí (es la forma de cortar el acceso de inmediato).
+- **Pendientes:** el/la coordinador/a puede cambiar el rol solicitado antes de aprobar. Una cuenta no puede volver a «pendiente».
+- **Auditoría:** el modelo `User` es auditable; la auditoría **nunca** guarda campos ocultos (`password`, `remember_token`) y no deja filas vacías. Acciones con nombre propio: `registro`, `aprobar`, `restablecer_clave`.
+
+## D-12 · IDC en el listado (Sprint 5, S5-07)
+- Una plantación sin cálculo de IDC se muestra como **«Incompleto»**. Es correcto porque el IDC se recalcula con cada cosecha guardada: sin cálculo ⇒ sin cosechas ⇒ incompleto por definición.
+
+## D-13 · Usuarios demo (Sprint 5)
+- `TRAZIVA_SEED_PASSWORD` en `.env` fija la contraseña de las 4 cuentas `@traziva.test` (también si ya existían), para que el equipo pruebe con la misma. No se imprime en consola. Nunca toca otras cuentas.
