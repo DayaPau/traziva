@@ -16,3 +16,5 @@ Estos puntos **no se resuelven en el código**. Lo que dependa de ellos se marca
 
 ## Pendientes internos del equipo
 - Confirmar con Amanecer quién aprueba las solicitudes de acceso (¿solo la coordinadora?). Ver D-02 en `decisiones.md`.
+- **Permisos de docente y estudiante (D-03):** hoy ambos solo consultan. El prompt base indicaba que el docente registra "con permisos limitados" y el estudiante registra labores en plantaciones asignadas. Confirmar con Amanecer antes del Sprint 6.
+- **Registro público con aprobación (D-02):** confirmar que Amanecer está de acuerdo con que cualquiera pueda solicitar acceso.
