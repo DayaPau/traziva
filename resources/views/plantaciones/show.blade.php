@@ -91,15 +91,30 @@
     </div>
 
     {{-- LABORES --}}
-    <div x-show="tab === 'labores'" x-cloak role="tabpanel">
+    <div x-show="tab === 'labores'" x-cloak role="tabpanel" class="space-y-6">
+        @can('registrar', $p)
+            <x-card titulo="Registrar labor cultural">
+                @if($tiposLabor->isEmpty())
+                    <x-alert tipo="aviso">No hay tipos de labor activos. Créalos en <a class="underline" href="{{ route('catalogos.index', 'tipos-labor') }}">Catálogos → Tipos de labor</a>.</x-alert>
+                @else
+                    <form method="POST" action="{{ route('labores.store', $p) }}" class="grid gap-4 md:grid-cols-[1fr_auto_2fr_auto] items-end">
+                        @csrf
+                        @include('labores._campos', ['tipos' => $tiposLabor])
+                        <button class="btn-primary">Registrar</button>
+                    </form>
+                @endif
+            </x-card>
+        @endcan
         @if($labores->isEmpty())
-            <x-card><x-empty-state titulo="Sin labores culturales registradas" icono="portapapeles">El registro de labores se habilita en el Sprint 6.</x-empty-state></x-card>
+            <x-card><x-empty-state titulo="Sin labores culturales registradas" icono="portapapeles" /></x-card>
         @else
             <x-table>
-                <x-slot:head><th>Fecha</th><th>Labor</th><th>Descripción</th><th>Observaciones</th><th>Registró</th></x-slot:head>
+                <x-slot:head><th>Fecha</th><th>Labor</th><th>Descripción</th><th>Observaciones</th><th>Registró</th>@can('registrar', $p)<th></th>@endcan</x-slot:head>
                 @foreach($labores as $l)
                     <tr><td class="whitespace-nowrap">{{ $fecha($l->fecha) }}</td><td class="font-medium">{{ $l->tipo->nombre }}</td>
-                        <td>{{ $l->descripcion ?? '—' }}</td><td class="text-gray-600">{{ $l->observaciones ?? '—' }}</td><td>{{ $l->registrador?->name ?? 'Importación' }}</td></tr>
+                        <td>{{ $l->descripcion ?? '—' }}</td><td class="text-gray-600">{{ $l->observaciones ?? '—' }}</td><td>{{ $l->registrador?->name ?? 'Importación' }}</td>
+                        @can('registrar', $p)<td class="text-right"><a href="{{ route('labores.edit', $l) }}" class="text-agro-moss font-medium hover:underline">Editar</a></td>@endcan
+                    </tr>
                 @endforeach
             </x-table>
         @endif
@@ -150,26 +165,30 @@
     {{-- COSECHAS --}}
     <div x-show="tab === 'cosechas'" x-cloak role="tabpanel" class="space-y-6">
         @can('registrar', $p)
-            <x-card titulo="Registrar cosecha" subtitulo="La cantidad aprovechable se calcula sola (cantidad − merma). Registro completo de postcosecha en el Sprint 6.">
-                <form method="POST" action="{{ route('cosechas.store', $p) }}" class="grid gap-4 md:grid-cols-5 items-end">
+            <x-card titulo="Registrar cosecha" subtitulo="La cantidad aprovechable se calcula sola (cantidad − merma). Al guardar se recalcula el IDC parcial.">
+                <form method="POST" action="{{ route('cosechas.store', $p) }}" class="space-y-4">
                     @csrf
-                    <x-input name="fecha_cosecha" label="Fecha" type="date" required max="{{ today()->toDateString() }}" />
-                    <x-input name="cantidad_kg" label="Cantidad (kg)" type="number" step="0.001" min="0.001" required />
-                    <x-input name="merma_kg" label="Merma (kg)" type="number" step="0.001" min="0" />
-                    <x-select name="categoria_calidad_id" label="Calidad (provisional)" :opciones="$calidades" vacio="Selecciona…" />
-                    <button class="btn-primary">Registrar</button>
+                    @include('cosechas._campos')
+                    <button class="btn-primary">Registrar cosecha</button>
                 </form>
             </x-card>
         @endcan
         @if($cosechas->isEmpty())
             <x-card><x-empty-state titulo="Sin cosechas registradas" icono="cosecha" /></x-card>
         @else
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div class="card !p-4"><p class="text-sm text-gray-500">Cosechado</p><p class="text-xl font-semibold tabular-nums">{{ $kg($cosechas->sum('cantidad_kg')) }}</p></div>
+                <div class="card !p-4"><p class="text-sm text-gray-500">Merma</p><p class="text-xl font-semibold tabular-nums">{{ $kg($cosechas->sum('merma_kg')) }}</p></div>
+                <div class="card !p-4"><p class="text-sm text-gray-500">Aprovechable acumulado</p><p class="text-xl font-semibold tabular-nums text-agro-forest">{{ $kg($cosechas->sum('cantidad_aprovechable_kg')) }}</p></div>
+            </div>
             <x-table>
-                <x-slot:head><th>Fecha</th><th class="text-right">Cantidad</th><th class="text-right">Merma</th><th class="text-right">Aprovechable</th><th>Calidad</th><th>Observaciones</th></x-slot:head>
+                <x-slot:head><th>Fecha</th><th class="text-right">Cantidad</th><th class="text-right">Merma</th><th class="text-right">Aprovechable</th><th>Calidad</th><th>Observaciones</th>@can('registrar', $p)<th></th>@endcan</x-slot:head>
                 @foreach($cosechas as $c)
                     <tr><td class="whitespace-nowrap">{{ $fecha($c->fecha_cosecha) }}</td><td class="text-right tabular-nums">{{ $kg($c->cantidad_kg) }}</td>
                         <td class="text-right tabular-nums">{{ $kg($c->merma_kg) }}</td><td class="text-right tabular-nums font-medium">{{ $kg($c->cantidad_aprovechable_kg) }}</td>
-                        <td>{{ $c->calidad?->nombre ?? '—' }}</td><td class="text-gray-600">{{ $c->observaciones ?? '—' }}</td></tr>
+                        <td>{{ $c->calidad?->nombre ?? '—' }}</td><td class="text-gray-600">{{ $c->observaciones ?? '—' }}</td>
+                        @can('registrar', $p)<td class="text-right"><a href="{{ route('cosechas.edit', $c) }}" class="text-agro-moss font-medium hover:underline">Editar</a></td>@endcan
+                    </tr>
                 @endforeach
             </x-table>
         @endif

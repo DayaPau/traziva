@@ -20,8 +20,8 @@ return [
     'menu' => [
         ['texto' => 'Dashboard',             'icono' => 'dashboard', 'ruta' => 'dashboard',          'activo' => 'dashboard',      'roles' => null],
         ['texto' => 'Cultivos',              'icono' => 'brote',     'ruta' => 'plantaciones.index', 'activo' => 'plantaciones.*', 'roles' => null],
-        ['texto' => 'Labores culturales',    'icono' => 'portapapeles', 'ruta' => null,              'activo' => 'labores.*',      'roles' => null],
-        ['texto' => 'Cosecha y postcosecha', 'icono' => 'cosecha',   'ruta' => null,                 'activo' => 'cosechas.*',     'roles' => null],
+        ['texto' => 'Labores culturales',    'icono' => 'portapapeles', 'ruta' => 'labores.index',            'activo' => 'labores.*',      'roles' => null],
+        ['texto' => 'Cosecha y postcosecha', 'icono' => 'cosecha',   'ruta' => 'cosechas.index',          'activo' => 'cosechas.*',     'roles' => null],
         ['texto' => 'Índice de Desempeño',   'icono' => 'medidor',   'ruta' => null,                 'activo' => 'idc.*',          'roles' => null],
         ['texto' => 'Catálogos',             'icono' => 'catalogo',  'ruta' => 'catalogos.index',    'activo' => 'catalogos.*',    'roles' => ['coordinador', 'responsable'], 'params' => ['catalogo' => 'cultivos']],
         ['texto' => 'Reportes CSV',         'icono' => 'archivo',   'ruta' => 'reportes.index',     'activo' => 'reportes.*',     'roles' => null],

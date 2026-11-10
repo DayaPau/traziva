@@ -100,6 +100,7 @@ class PlantacionController extends Controller
             'historial' => $historial,
             'calculosIdc' => $plantacion->idcCalculos()->orderByDesc('calculado_en')->limit(20)->get(),
             'calidades' => CategoriaCalidad::where('activo', true)->orderBy('orden')->pluck('nombre', 'id'),
+            'tiposLabor' => \App\Http\Requests\LaborRequest::tiposPermitidos($plantacion)->pluck('nombre', 'id'),
         ]);
     }
 
