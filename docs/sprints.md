@@ -27,6 +27,45 @@ interfaz en español y acorde a la referencia visual · documentada en este arch
 
 ---
 
+## Primer avance ante el jurado (14 nov 2026) — rama `avance-nov14`
+
+**Objetivo:** un recorrido de punta a punta que funcione sin errores y se pueda demostrar en vivo. Se adelantaron del Sprint 6 las labores y las cosechas (solo lo necesario para el guion).
+
+| # | Entregable | Estado |
+|---|---|---|
+| 1 | Layout con barra lateral, cabecera y menú por rol | Hecho (Sprint 5) |
+| 2 | Login seguro | Hecho (Sprint 5) — se mantiene el registro con aprobación (D-02, confirmado) |
+| 3 | Permisos con middleware y Policies, 403 probados | Hecho |
+| 4 | Plantaciones: crear, editar, listar, buscar, detalle con pestañas | Hecho (Sprint 5) |
+| 5 | Cambio de estado/etapa auditado; no se borra con registros | Hecho (Sprint 5) |
+| 6 | Labores culturales: registrar, editar, listado con filtros | Hecho — solo coordinador/a y responsable (D-14) |
+| 7 | Cosechas: crear y editar, aprovechable en vivo, acumulados, IDC recalculado | Hecho |
+| 8 | IDC visible: puntaje, categoría, variables, faltantes, versión, recalcular | Hecho |
+| 9 | Datos reales (11/57/79 verificado) y `DatosPruebaSeeder` (alto 91,3 · medio 68,9 · incompleto) | Hecho |
+| 10 | Pruebas y documentación | Hecho — 64 pruebas en verde |
+
+**Fuera de este avance:** aplicaciones con varios productos, eventos fitosanitarios, clima, alertas, calendario, gráficos del dashboard, importación web, CSV nuevos, pantalla de auditoría.
+
+### Guion de demostración (verificado en el navegador el 09/11/2026)
+Preparación: `php artisan db:seed --class=DatosPruebaSeeder` (el mismo día de la presentación, porque el IDC evalúa hasta «hoy»).
+
+1. `coordinador@traziva.test` → Dashboard: totales reales (11 plantaciones, 57 labores, 79 aplicaciones) y aviso de 3 plantaciones de prueba.
+2. **Cultivos** → listado con las 11 plantaciones de Amanecer (IDC «Incompleto»: aún no hay cosechas reales).
+3. **Registrar nueva plantación** → cultivo, nave, fecha, camas, meta kg/cama y período → el código se genera solo → Registrar.
+4. En el detalle: pestaña **Labores** → registrar una; pestaña **Cosechas** → registrar una con calidad (probar merma > cantidad para mostrar la validación).
+5. Pestaña **IDC** → puntaje y variables; **Recalcular IDC**.
+6. Cerrar sesión → `estudiante@traziva.test`: menú reducido, sin formularios; abrir `/usuarios` → 403.
+7. Volver como coordinador → Cultivos → filtro «Solo datos de prueba»: TEST-01 (91, alto), TEST-02 (69, medio), TEST-03 (Incompleto, explica qué falta).
+
+### Decisiones
+D-14 (labores y cosechas) y D-15 (datos de demostración) en [`decisiones.md`](decisiones.md).
+
+### Riesgos para la presentación
+- **IDC con pocos datos:** con una sola cosecha reciente el IDC puede salir «alto» (ver `pendientes.md`). Si el jurado pregunta: es un borrador por validar; mostrar el caso TEST-02 y explicar las variables.
+- Si se presenta otro día distinto al de la siembra de datos de prueba, volver a ejecutar `DatosPruebaSeeder` (los puntajes dependen de la fecha).
+- Si la red de la sala bloquea Google Fonts, la interfaz usa tipografías del sistema (funciona igual).
+- La plantación creada en vivo queda en la base real: después de la demo se puede eliminar si no tiene registros, o cambiar su estado.
+
 ## Sprint 5 — Base reconstruida (9 – 20 nov 2026)
 
 **Objetivo:** que la granja pueda administrar usuarios, catálogos y plantaciones desde la interfaz, con permisos por rol, sobre el nuevo modelo de datos (plantación = cultivo + nave + siembra).

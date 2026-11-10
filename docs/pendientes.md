@@ -18,3 +18,7 @@ Estos puntos **no se resuelven en el código**. Lo que dependa de ellos se marca
 - Confirmar con Amanecer quién aprueba las solicitudes de acceso (¿solo la coordinadora?). Ver D-02 en `decisiones.md`.
 - **Permisos de docente y estudiante (D-03):** hoy ambos solo consultan. El prompt base indicaba que el docente registra "con permisos limitados" y el estudiante registra labores en plantaciones asignadas. Confirmar con Amanecer antes del Sprint 6.
 - **Registro público con aprobación (D-02):** confirmar que Amanecer está de acuerdo con que cualquiera pueda solicitar acceso.
+
+## Observaciones del IDC para el tutor (fórmula borrador-0.1)
+- **Períodos muy cortos inflan el rendimiento:** el rendimiento compara lo cosechado contra la meta *del período evaluado* (desde la primera cosecha hasta hoy). Con una sola cosecha reciente el período es de 1–2 días y la meta proporcional es pequeña, así que el rendimiento llega a 100 % y el IDC puede salir «alto» con muy pocos datos. Ejemplo verificado: 5 kg cosechados al día siguiente de la siembra con meta 8 kg/cama/mes y 6 camas → IDC 80 (alto). Opciones a discutir: período mínimo de evaluación (p. ej. 30 días), o exigir un número mínimo de cortes antes de dar puntaje.
+- El IDC parcial evalúa hasta «hoy»: si no se registran cosechas nuevas, el puntaje baja con los días (la meta del período crece). Es coherente con un indicador de seguimiento, pero debe explicarse al usuario.

@@ -80,3 +80,14 @@ Cada una indica quién la tomó y cuándo, para poder defenderla ante el tribuna
 
 ## D-13 · Usuarios demo (Sprint 5)
 - `TRAZIVA_SEED_PASSWORD` en `.env` fija la contraseña de las 4 cuentas `@traziva.test` (también si ya existían), para que el equipo pruebe con la misma. No se imprime en consola. Nunca toca otras cuentas.
+
+## D-14 · Labores y cosechas desde la interfaz (avance 14-nov)
+- Registran y editan: coordinador/a y responsable. **Docente y estudiante solo consultan** (confirmado por Dayana el 09/11/2026; el prompt del avance decía que el estudiante registraba labores).
+- Labor: tipo del catálogo (solo los asociados al cultivo; si el cultivo no tiene asociados, todos los activos), fecha no futura y no anterior a la siembra, descripción. Se registra desde la pestaña «Labores» del detalle; la pantalla «Labores culturales» del menú es para consultar y filtrar.
+- Cosecha: fecha no futura y no anterior a la siembra, cantidad > 0, 0 ≤ merma ≤ cantidad (vacía = 0), calidad del catálogo provisional. El aprovechable lo calcula la base de datos y se muestra en vivo en el formulario. Guardar o editar recalcula el IDC parcial.
+- Si un formulario tiene errores, se vuelve a la misma pestaña del detalle con los datos ingresados.
+
+## D-15 · Datos de demostración (avance 14-nov)
+- `DatosPruebaSeeder` crea 3 plantaciones `TEST-01-ALTO`, `TEST-02-MEDIO`, `TEST-03-INCOMPLETO` con `es_prueba = true`, sin nave (para no crear naves ficticias) y con fechas relativas al día de ejecución. Volver a ejecutarlo reemplaza las anteriores.
+- `php artisan traziva:borrar-prueba` borra solo plantaciones `es_prueba = true` con código `TEST-…` y sus registros en cascada.
+- El panel (dashboard) **no suma** datos de prueba en sus totales; en las tablas se ven con la insignia «Prueba» y se filtran con «Solo datos reales / de prueba».

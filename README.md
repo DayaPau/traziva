@@ -28,7 +28,7 @@ Reemplaza al Excel y al libro de campo; el Excel de Amanecer solo se usa como ca
 | Correo | Rol | Puede |
 |---|---|---|
 | `coordinador@traziva.test` | Coordinador/a | Todo: usuarios, catálogos, plantaciones, aprobar solicitudes de acceso |
-| `responsable@traziva.test` | Responsable de producción | Catálogos y plantaciones (crear, editar, cambiar estado) |
+| `responsable@traziva.test` | Responsable de producción | Catálogos, plantaciones, labores, cosechas y recalcular IDC |
 | `docente@traziva.test` | Docente / investigador | Solo consulta y CSV |
 | `estudiante@traziva.test` | Estudiante / practicante | Solo consulta y CSV, con acceso temporal |
 
@@ -44,6 +44,12 @@ Son cuentas de prueba: **desactívalas antes del piloto real**.
 | `php artisan migrate` | Aplica migraciones nuevas |
 | `php artisan db:seed` | Roles, categorías de calidad provisionales y usuarios demo |
 | `php artisan traziva:importar <xlsx> [--dry-run] [--asignar=ultima\|todas]` | Migración inicial desde el Excel de Amanecer |
+| `php artisan db:seed --class=DatosPruebaSeeder` | Crea 3 plantaciones de **prueba** `TEST-…` (IDC alto, medio e incompleto). Ejecutarlo el día de la demo |
+| `php artisan traziva:borrar-prueba` | Borra solo los datos de prueba (`es_prueba` + código `TEST-…`); los reales no se tocan |
+
+### Datos reales vs. datos de prueba
+- **Reales:** los del Excel de Amanecer (11 plantaciones, 57 labores, 79 aplicaciones, sin cosechas aún) y lo que se registra desde la interfaz.
+- **Prueba:** sintéticos, solo para demostrar el IDC. Siempre `es_prueba = true`, código `TEST-…`, insignia «Prueba», filtrables y **excluidos de los totales del panel**.
 
 ## Importador (`traziva:importar`)
 - Reporte de aceptadas / advertencias / rechazadas en consola y en `storage/app/private/importaciones/*.csv`.
@@ -62,5 +68,5 @@ Son cuentas de prueba: **desactívalas antes del piloto real**.
 ## Pendientes conocidos
 - Fórmula del IDC en **borrador** (`config/traziva.php`), por validar con el tutor y Amanecer.
 - Categorías de calidad y metas por cama **provisionales**.
-- Labores, aplicaciones, eventos y cosechas desde la interfaz: Sprint 6. Dashboard, IDC, CSV y auditoría: Sprint 7. Importación web: Sprint 8.
+- Ya se registran labores y cosechas desde la interfaz. Aplicaciones, eventos, clima y alertas: Sprint 6. Dashboard con gráficos, CSV y auditoría: Sprint 7. Importación web: Sprint 8.
 - SSO institucional fuera del alcance del MVP (autenticación propia).
