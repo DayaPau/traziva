@@ -23,13 +23,15 @@
       x-data="{
           codigo: @js(old('codigo', $p->codigo)),
           manual: @js($editando || filled(old('codigo'))),
+          ultima: 0,
           async sugerir() {
               if (this.manual) return;
               const f = new FormData(this.$el);
               if (! f.get('cultivo_id')) return;
+              const n = ++this.ultima; // solo se aplica la respuesta de la última petición (evita respuestas desordenadas)
               const params = new URLSearchParams({ cultivo_id: f.get('cultivo_id'), nave_id: f.get('nave_id') ?? '', fecha_siembra: f.get('fecha_siembra') ?? '', fecha_siembra_precision: f.get('fecha_siembra_precision') ?? 'dia' });
               const r = await fetch(@js(route('plantaciones.sugerir-codigo')) + '?' + params, { headers: { Accept: 'application/json' } });
-              if (r.ok) this.codigo = (await r.json()).codigo;
+              if (r.ok && n === this.ultima) this.codigo = (await r.json()).codigo;
           }
       }" @change="if (['cultivo_id','nave_id','fecha_siembra','fecha_siembra_precision'].includes($event.target.name)) sugerir()">
     @csrf

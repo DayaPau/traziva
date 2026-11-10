@@ -59,6 +59,18 @@ class DatosDemostracionTest extends TestCase
         $this->actingAs($coord)->get('/plantaciones?datos=prueba')->assertSee('TEST-02-MEDIO')->assertDontSee('MOR-N04-202410');
     }
 
+    public function test_el_panel_no_suma_datos_de_prueba(): void
+    {
+        $this->seed(DatosPruebaSeeder::class); // 3 plantaciones de prueba activas, con labores y cosechas
+        $coord = User::where('email', 'coordinador@traziva.test')->firstOrFail();
+
+        $res = $this->actingAs($coord)->get('/dashboard')->assertOk()->assertSee('3 plantaciones de');
+        $totales = $res->viewData('totales');
+        $this->assertSame(0, $totales['Plantaciones activas']);
+        $this->assertSame(0, $totales['Cosechas']);
+        $this->assertSame(0, $totales['Labores registradas']);
+    }
+
     public function test_resembrar_no_duplica_y_borrar_no_toca_datos_reales(): void
     {
         (new ExcelCultivosImporter())->importar(base_path('database/data/FORMATO_PRODUCCION_CULTIVOS.xlsx'));

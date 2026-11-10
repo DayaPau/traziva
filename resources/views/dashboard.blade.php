@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('titulo', 'Dashboard')
 @section('contenido')
-<x-page-header titulo="Dashboard" subtitulo="Resumen de la producción registrada en Traziva." />
+<x-page-header titulo="Dashboard" subtitulo="Resumen de la producción real registrada en Traziva (no incluye datos de prueba)." />
 
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     @foreach($totales as $titulo => $n)
@@ -12,7 +12,12 @@
     @endforeach
 </div>
 
-<x-alert tipo="info" class="mb-6">Los gráficos de producción, estados, desempeño y eventos fitosanitarios se incorporan en el Sprint 7.</x-alert>
+@if($plantacionesPrueba)
+    <x-alert tipo="info" class="mb-6">
+        Hay {{ $plantacionesPrueba }} plantaciones de <strong>prueba</strong> (códigos TEST-…, datos sintéticos para demostrar el IDC).
+        No se suman en los totales; en la tabla aparecen al final con la insignia «Prueba».
+    </x-alert>
+@endif
 
 <h2 class="mb-3">Plantaciones</h2>
 @include('plantaciones._tabla', ['plantaciones' => $plantaciones])
