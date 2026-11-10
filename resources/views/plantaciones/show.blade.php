@@ -206,21 +206,45 @@
             @if(! $p->ultimoIdc)
                 <x-empty-state titulo="Aún no se ha calculado el IDC" icono="medidor" />
             @else
-                @php $u = $p->ultimoIdc; @endphp
-                <div class="flex flex-wrap items-baseline gap-3 mb-4">
-                    <span class="text-3xl font-semibold tabular-nums">{{ $u->puntaje !== null ? number_format($u->puntaje, 1, ',', '') : '—' }}</span>
+                @php
+                    $u = $p->ultimoIdc;
+                    // Nombre legible y qué significa el valor crudo de cada variable (ver IdcCalculator).
+                    $vars = [
+                        'rendimiento' => ['Rendimiento', 'kg cosechados vs. meta del período'],
+                        'calidad' => ['Calidad', 'orden promedio de calidad ponderado por kg'],
+                        'aprovechamiento' => ['Aprovechamiento', 'kg aprovechables (1 − merma)'],
+                        'constancia' => ['Constancia', 'días con registros (labores, aplicaciones, eventos)'],
+                        'estimacion_cosecha' => ['Estimación de cosecha', 'días de desfase vs. inicio estimado · informativa'],
+                    ];
+                    $etiquetaCat = ['alto' => 'Alto', 'medio' => 'Medio', 'bajo' => 'Bajo', 'incompleto' => 'Incompleto'];
+                @endphp
+                <div class="flex flex-wrap items-baseline gap-3 mb-1">
+                    <span class="text-4xl font-semibold tabular-nums">{{ $u->puntaje !== null ? number_format($u->puntaje, 1, ',', '') : '—' }}</span>
+                    <span class="text-gray-500">/ 100</span>
                     @include('plantaciones._idc', ['idc' => $u])
-                    <span class="text-sm text-gray-500">Categoría {{ $u->categoria }} · {{ $u->calculado_en->format('d/m/Y H:i') }}</span>
+                    <span class="text-sm font-medium">Desempeño {{ mb_strtolower($etiquetaCat[$u->categoria]) }}</span>
                 </div>
+                <p class="text-sm text-gray-500 mb-4">
+                    Calculado el {{ $u->calculado_en->format('d/m/Y H:i') }} · fórmula {{ $u->version_formula }} (borrador)
+                    @if($u->periodo_desde) · período evaluado {{ $u->periodo_desde->format('d/m/Y') }} – {{ $u->periodo_hasta?->format('d/m/Y') }} @endif
+                    · rangos: alto ≥ {{ config('traziva.idc.rangos.alto') }}, medio ≥ {{ config('traziva.idc.rangos.medio') }}
+                </p>
                 @if($u->datos_faltantes)
-                    <x-alert tipo="info" class="mb-4">Faltan datos para calcularlo: {{ implode(', ', $u->datos_faltantes) }}.</x-alert>
+                    <x-alert tipo="info" class="mb-4">
+                        <p class="font-medium">Faltan datos para calcular el IDC:</p>
+                        <ul class="list-disc pl-5 mt-1">@foreach($u->datos_faltantes as $falta)<li>{{ $falta }}</li>@endforeach</ul>
+                    </x-alert>
                 @endif
                 @if($u->variables->isNotEmpty())
                     <x-table>
                         <x-slot:head><th>Variable</th><th class="text-right">Valor crudo</th><th class="text-right">Normalizado (0–100)</th><th class="text-right">Peso</th></x-slot:head>
                         @foreach($u->variables as $v)
-                            <tr><td>{{ ucfirst(str_replace('_', ' ', $v->variable)) }}</td><td class="text-right tabular-nums">{{ $v->valor_crudo ?? '—' }}</td>
-                                <td class="text-right tabular-nums">{{ $v->valor_normalizado ?? '—' }}</td><td class="text-right tabular-nums">{{ number_format($v->peso * 100, 0) }} %</td></tr>
+                            <tr @class(['text-gray-500' => (float) $v->peso === 0.0])>
+                                <td><p class="font-medium">{{ $vars[$v->variable][0] ?? $v->variable }}</p><p class="text-xs text-gray-500">{{ $vars[$v->variable][1] ?? '' }}</p></td>
+                                <td class="text-right tabular-nums">{{ $v->valor_crudo !== null ? $num($v->valor_crudo) : '—' }}</td>
+                                <td class="text-right tabular-nums">{{ $v->valor_normalizado !== null ? $num($v->valor_normalizado) : '—' }}</td>
+                                <td class="text-right tabular-nums">{{ number_format($v->peso * 100, 0) }} %</td>
+                            </tr>
                         @endforeach
                     </x-table>
                 @endif

@@ -87,6 +87,7 @@
         </tr>
     @endforeach
 </x-table>
+<p class="mt-3 text-xs text-gray-500">IDC: Índice de Desempeño del Cultivo · <strong>referencial · fórmula en borrador</strong> ({{ config('traziva.idc.version') }}), pendiente de validar con el tutor y Amanecer. «Incompleto» = faltan datos mínimos (meta, camas, cosechas o calidad).</p>
 <div class="mt-4">{{ $plantaciones->links() }}</div>
 @endif
 @endsection
