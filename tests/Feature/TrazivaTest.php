@@ -85,6 +85,52 @@ class TrazivaTest extends TestCase
     {
         $this->get('/dashboard')->assertRedirect('/login');
     }
+        public function test_usuario_con_acceso_vencido_pierde_la_sesion(): void
+    {
+        $u = $this->usuario('estudiante');
+        $u->update(['activo_hasta' => today()->subDay()]);
+
+        $this->actingAs($u)->get('/dashboard')->assertRedirect('/login');
+        $this->assertGuest();
+    }
+
+    public function test_usuario_desactivado_pierde_la_sesion(): void
+    {
+        $u = $this->usuario('docente');
+        $u->update(['estado' => 'inactivo']);
+
+        $this->actingAs($u)->get('/plantaciones')->assertRedirect('/login');
+        $this->assertGuest();
+    }
+
+    public function test_estudiante_requiere_fecha_de_vencimiento(): void
+    {
+        $coord = $this->usuario('coordinador');
+        $rol = Rol::where('nombre', 'estudiante')->value('id');
+        $datos = ['name' => 'Est Nuevo', 'email' => 'nuevo@traziva.test', 'password' => 'secreto123', 'rol_id' => $rol];
+
+        $this->actingAs($coord)->post('/usuarios', $datos)->assertSessionHasErrors('activo_hasta');
+        $this->assertDatabaseMissing('users', ['email' => 'nuevo@traziva.test']);
+
+        $this->actingAs($coord)->post('/usuarios', $datos + ['activo_hasta' => today()->addMonth()->toDateString()])
+            ->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('users', ['email' => 'nuevo@traziva.test']);
+    }
+
+    public function test_crear_usuario_queda_auditado_sin_contrasena(): void
+    {
+        $coord = $this->usuario('coordinador');
+        $rol = Rol::where('nombre', 'responsable')->value('id');
+
+        $this->actingAs($coord)->post('/usuarios', [
+            'name' => 'Resp Nuevo', 'email' => 'resp.nuevo@traziva.test', 'password' => 'secreto123', 'rol_id' => $rol,
+        ])->assertSessionHasNoErrors();
+
+        $a = \App\Models\Auditoria::where(['entidad' => 'users', 'accion' => 'crear', 'user_id' => $coord->id])->latest('id')->firstOrFail();
+        $this->assertSame('resp.nuevo@traziva.test', $a->valores_despues['email']);
+        $this->assertArrayNotHasKey('password', $a->valores_despues);
+        $this->assertArrayNotHasKey('remember_token', $a->valores_despues);
+    }
 
     public function test_auditoria_no_se_puede_modificar(): void
     {

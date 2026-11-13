@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Concerns\Auditable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Auditable, Notifiable;
 
     protected $fillable = ['rol_id', 'name', 'email', 'password', 'estado', 'activo_desde', 'activo_hasta'];
     protected $hidden = ['password', 'remember_token'];
+    protected array $auditExcluir = ['password', 'remember_token'];
 
     protected function casts(): array
     {
