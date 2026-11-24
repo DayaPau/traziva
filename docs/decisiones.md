@@ -91,3 +91,13 @@ Cada una indica quién la tomó y cuándo, para poder defenderla ante el tribuna
 - `DatosPruebaSeeder` crea 3 plantaciones `TEST-01-ALTO`, `TEST-02-MEDIO`, `TEST-03-INCOMPLETO` con `es_prueba = true`, sin nave (para no crear naves ficticias) y con fechas relativas al día de ejecución. Volver a ejecutarlo reemplaza las anteriores.
 - `php artisan traziva:borrar-prueba` borra solo plantaciones `es_prueba = true` con código `TEST-…` y sus registros en cascada.
 - El panel (dashboard) **no suma** datos de prueba en sus totales; en las tablas se ven con la insignia «Prueba» y se filtran con «Solo datos reales / de prueba».
+
+## D-16 · Registro normal con código de verificación por rol (reemplaza a D-02) — 24/11/2026
+- **Decisión (Dayana):** se elimina «Solicitar acceso» (cuenta pendiente hasta aprobación). Ahora hay un **registro normal**: la cuenta queda activa y la persona entra de inmediato.
+- **Roles:** docente y estudiante se registran libremente (solo consultan). Coordinador/a y responsable también pueden elegirse, pero exigen el **código de verificación de su rol**.
+- **Código fijo por rol** (preferencia del equipo: grupo pequeño que se lo comparte). Vive solo en el `.env` del servidor (`TRAZIVA_CODIGO_COORDINADOR`, `TRAZIVA_CODIGO_RESPONSABLE`), nunca en el repositorio; se compara en tiempo constante y no se registra en logs. Si un código está vacío, ese rol no se ofrece. Para cambiarlo basta editar el `.env`.
+- **Límite de cuentas activas** (`config/traziva.php`): 1 coordinador/a y 2 responsables (Amanecer tiene dos). Se aplica en el registro y en «Usuarios y roles». **Mitiga la filtración del código:** con el cupo lleno, el código no sirve.
+- Como siempre debe existir un/a coordinador/a y como máximo uno/a, el **cambio de persona** se hace con `php artisan traziva:cambiar-coordinador --email=…` (crea o promueve a la nueva persona y desactiva a la anterior en una sola transacción, auditado).
+- **Reglas del formulario:** nombre 3–120 (letras, espacios, `'.-`); correo válido, único sin distinguir mayúsculas y guardado en minúsculas; contraseña ≥ 8 con mayúsculas, minúsculas, números y símbolos, confirmada y distinta del correo; aceptación del tratamiento de datos; campo trampa contra bots; 3 intentos cada 10 minutos por IP (también frena adivinar el código).
+- **No incluido:** verificación del correo por email (requiere servidor de correo; fuera del alcance del MVP) y CAPTCHA externo (dependencia nueva).
+- Las cuentas «pendientes» creadas antes de este cambio siguen sin poder entrar hasta que el/la coordinador/a las apruebe o rechace.

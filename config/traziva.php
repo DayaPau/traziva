@@ -12,6 +12,26 @@ return [
     ],
 
     /*
+    | Registro de cuentas (D-16).
+    | - Docente y estudiante se registran solos y entran de inmediato (solo consultan).
+    | - Coordinador/a y responsable necesitan el código de verificación de su rol, que vive
+    |   solo en el .env del servidor (nunca en el repositorio). Si un código está vacío,
+    |   ese rol no se ofrece en el registro.
+    | - 'limites': máximo de cuentas ACTIVAS por rol (registro y "Usuarios y roles").
+    |   Con el cupo lleno, un código filtrado no sirve de nada.
+    */
+    'registro' => [
+        'codigos' => [
+            'coordinador' => env('TRAZIVA_CODIGO_COORDINADOR', ''),
+            'responsable' => env('TRAZIVA_CODIGO_RESPONSABLE', ''),
+        ],
+        'limites' => [
+            'coordinador' => 1,
+            'responsable' => 2,   // Amanecer tiene dos responsables de producción
+        ],
+    ],
+
+    /*
     | Menú lateral. Fuente única de verdad para la navegación por rol:
     | 'roles' => null significa "todos los roles". 'ruta' => null = módulo aún
     | no construido (se muestra como "Próximamente"). 'activo' = patrón de rutas

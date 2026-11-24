@@ -24,6 +24,6 @@
 </form>
 
 <p class="text-sm text-gray-600 mt-6 text-center">
-    ¿No tienes cuenta? <a href="{{ route('registro') }}" class="font-semibold text-agro-moss hover:underline">Solicitar acceso</a>
+    ¿No tienes cuenta? <a href="{{ route('registro') }}" class="font-semibold text-agro-moss hover:underline">Crear cuenta</a>
 </p>
 @endsection

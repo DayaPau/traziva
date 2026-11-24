@@ -15,7 +15,7 @@ Reemplaza al Excel y al libro de campo; el Excel de Amanecer solo se usa como ca
 3. `composer install`
 4. `copy .env.example .env` y `php artisan key:generate`
 5. Crea la base de datos `traziva` (utf8mb4_unicode_ci) y ajusta `DB_*` en `.env`.
-6. Define la contraseña común de los usuarios demo en `.env`: `TRAZIVA_SEED_PASSWORD=UnaClaveDePrueba1`
+6. En `.env` define la contraseña común de los usuarios demo (`TRAZIVA_SEED_PASSWORD=UnaClaveDePrueba1`) y los códigos de verificación para registrarse como coordinador/a o responsable (`TRAZIVA_CODIGO_COORDINADOR=…`, `TRAZIVA_CODIGO_RESPONSABLE=…`). Elige códigos difíciles de adivinar y compártelos solo con esas personas.
 7. `php artisan migrate --seed`
 8. `npm install && npm run build` (o `npm run dev` mientras desarrollas)
 9. Carga inicial desde Excel (opcional): primero simula, luego importa:
@@ -27,13 +27,19 @@ Reemplaza al Excel y al libro de campo; el Excel de Amanecer solo se usa como ca
 
 | Correo | Rol | Puede |
 |---|---|---|
-| `coordinador@traziva.test` | Coordinador/a | Todo: usuarios, catálogos, plantaciones, aprobar solicitudes de acceso |
+| `coordinador@traziva.test` | Coordinador/a | Todo: usuarios y roles, catálogos, plantaciones, labores, cosechas |
 | `responsable@traziva.test` | Responsable de producción | Catálogos, plantaciones, labores, cosechas y recalcular IDC |
 | `docente@traziva.test` | Docente / investigador | Solo consulta y CSV |
 | `estudiante@traziva.test` | Estudiante / practicante | Solo consulta y CSV, con acceso temporal |
 
 Contraseña: la de `TRAZIVA_SEED_PASSWORD`. Volver a ejecutar `php artisan db:seed` la reaplica **solo** a estas cuatro cuentas.
 Son cuentas de prueba: **desactívalas antes del piloto real**.
+
+### Registro de cuentas nuevas («Crear cuenta» en el login)
+- **Docente y estudiante:** se registran solos y entran de inmediato.
+- **Coordinador/a y responsable:** necesitan el código de verificación de su rol (del `.env`).
+- **Límite de cuentas activas:** 1 coordinador/a y 2 responsables (`config/traziva.php`). Con el cupo lleno no se puede crear otra, ni con el código correcto.
+- Para **cambiar de coordinador/a** (por ejemplo, reemplazar la cuenta demo por la real): `php artisan traziva:cambiar-coordinador --email=correo@udla.edu.ec`.
 
 ## Comandos útiles
 
@@ -46,6 +52,7 @@ Son cuentas de prueba: **desactívalas antes del piloto real**.
 | `php artisan traziva:importar <xlsx> [--dry-run] [--asignar=ultima\|todas]` | Migración inicial desde el Excel de Amanecer |
 | `php artisan db:seed --class=DatosPruebaSeeder` | Crea 3 plantaciones de **prueba** `TEST-…` (IDC alto, medio e incompleto). Ejecutarlo el día de la demo |
 | `php artisan traziva:borrar-prueba` | Borra solo los datos de prueba (`es_prueba` + código `TEST-…`); los reales no se tocan |
+| `php artisan traziva:cambiar-coordinador --email=…` | Deja a esa persona como único/a coordinador/a activo/a (la crea si no existe) y desactiva a los/las demás |
 
 ### Datos reales vs. datos de prueba
 - **Reales:** los del Excel de Amanecer (11 plantaciones, 57 labores, 79 aplicaciones, sin cosechas aún) y lo que se registra desde la interfaz.

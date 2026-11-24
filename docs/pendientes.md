@@ -15,9 +15,9 @@ Estos puntos **no se resuelven en el código**. Lo que dependa de ellos se marca
 - Validar la fórmula del IDC (`config/traziva.php`, versión `borrador-0.1`).
 
 ## Pendientes internos del equipo
-- Confirmar con Amanecer quién aprueba las solicitudes de acceso (¿solo la coordinadora?). Ver D-02 en `decisiones.md`.
+- Antes del piloto: dejar un solo coordinador/a activo/a con `php artisan traziva:cambiar-coordinador` (hoy hay dos: la cuenta demo y una real).
 - **Permisos de docente y estudiante (D-03):** hoy ambos solo consultan. El prompt base indicaba que el docente registra "con permisos limitados" y el estudiante registra labores en plantaciones asignadas. Confirmar con Amanecer antes del Sprint 6.
-- **Registro público con aprobación (D-02):** confirmar que Amanecer está de acuerdo con que cualquiera pueda solicitar acceso.
+- **Registro con código por rol (D-16):** confirmar con Amanecer el límite de cuentas (1 coordinador/a, 2 responsables) y quién custodia los códigos de verificación.
 
 ## Observaciones del IDC para el tutor (fórmula borrador-0.1)
 - **Períodos muy cortos inflan el rendimiento:** el rendimiento compara lo cosechado contra la meta *del período evaluado* (desde la primera cosecha hasta hoy). Con una sola cosecha reciente el período es de 1–2 días y la meta proporcional es pequeña, así que el rendimiento llega a 100 % y el IDC puede salir «alto» con muy pocos datos. Ejemplo verificado: 5 kg cosechados al día siguiente de la siembra con meta 8 kg/cama/mes y 6 camas → IDC 80 (alto). Opciones a discutir: período mínimo de evaluación (p. ej. 30 días), o exigir un número mínimo de cortes antes de dar puntaje.

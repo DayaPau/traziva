@@ -4,38 +4,36 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegistroRequest;
-use App\Models\Auditoria;
 use App\Models\Rol;
-use App\Models\User;
+use App\Services\Usuarios\RegistroCuentas;
+use Illuminate\Support\Facades\Auth;
 
 /**
- * Registro público con aprobación (D-02): la persona elige el rol que solicita,
- * pero la cuenta nace "pendiente" y no puede ingresar hasta que el/la
- * coordinador/a la apruebe en "Usuarios y roles".
+ * Registro de cuentas (D-16): la cuenta queda activa y la persona entra de inmediato.
+ * Coordinador/a y responsable necesitan el código de verificación de su rol.
  */
 class RegistroController extends Controller
 {
+    public function __construct(private RegistroCuentas $registro) {}
+
     public function create()
     {
-        $roles = Rol::orderBy('id')->get()
-            ->mapWithKeys(fn (Rol $r) => [$r->id => config("traziva.roles.{$r->nombre}", $r->nombre)]);
+        $roles = $this->registro->rolesDisponibles();
 
-        return view('auth.registro', ['roles' => $roles]);
+        return view('auth.registro', [
+            'roles' => $roles->mapWithKeys(fn (Rol $r) => [$r->id => config("traziva.roles.{$r->nombre}", $r->nombre)]),
+            // ids de los roles que exigen código (el formulario muestra el campo solo para ellos)
+            'conCodigo' => $roles->filter(fn (Rol $r) => $this->registro->requiereCodigo($r->nombre))->modelKeys(),
+        ]);
     }
 
     public function store(RegistroRequest $request)
     {
-        // Sin eventos: se audita una sola vez, con la acción explícita «registro» (abajo).
-        $user = User::withoutEvents(fn () => User::create($request->validated() + ['estado' => 'pendiente']));
+        $user = $this->registro->registrar($request->validated());
 
-        Auditoria::create([
-            'accion' => 'registro',
-            'entidad' => 'users',
-            'entidad_id' => $user->id,
-            'valores_despues' => ['name' => $user->name, 'email' => $user->email, 'rol_id' => $user->rol_id, 'estado' => 'pendiente'],
-        ]);
+        Auth::login($user);
+        $request->session()->regenerate();
 
-        return redirect()->route('login')
-            ->with('ok', 'Solicitud enviada. Podrás ingresar cuando el/la coordinador/a apruebe tu cuenta.');
+        return redirect()->route('dashboard')->with('ok', "¡Bienvenido/a, {$user->name}! Tu cuenta de ".mb_strtolower($user->rol_etiqueta).' está lista.');
     }
 }

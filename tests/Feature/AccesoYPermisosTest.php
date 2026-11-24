@@ -92,30 +92,17 @@ class AccesoYPermisosTest extends TestCase
         }
     }
 
-    // --- Registro con aprobación ---------------------------------------------
+    // --- Cuentas pendientes heredadas (antes del registro con código, D-16) --------
+    // El registro público ahora se prueba en RegistroTest.
 
-    public function test_registro_crea_cuenta_pendiente_que_no_puede_ingresar(): void
+    public function test_cuenta_pendiente_no_puede_ingresar(): void
     {
-        $rol = Rol::where('nombre', 'coordinador')->first();
+        User::create(['name' => 'Antigua', 'email' => 'antigua@udla.edu.ec', 'password' => 'clave1234',
+            'rol_id' => Rol::where('nombre', 'docente')->value('id'), 'estado' => 'pendiente']);
 
-        $this->post('/registro', [
-            'name' => 'Persona Nueva', 'email' => 'nueva@udla.edu.ec', 'rol_id' => $rol->id,
-            'password' => 'clave1234', 'password_confirmation' => 'clave1234',
-        ])->assertRedirect('/login');
-
-        $u = User::where('email', 'nueva@udla.edu.ec')->first();
-        $this->assertSame('pendiente', $u->estado);
-        $this->assertTrue(Auditoria::where('accion', 'registro')->where('entidad_id', $u->id)->exists());
-
-        $this->post('/login', ['email' => 'nueva@udla.edu.ec', 'password' => 'clave1234'])
+        $this->post('/login', ['email' => 'antigua@udla.edu.ec', 'password' => 'clave1234'])
             ->assertSessionHasErrors(['email' => 'Tu cuenta está pendiente de aprobación por el/la coordinador/a.']);
         $this->assertGuest();
-    }
-
-    public function test_registro_valida_datos(): void
-    {
-        $this->post('/registro', ['name' => '', 'email' => 'coordinador@traziva.test', 'rol_id' => 999, 'password' => 'corta', 'password_confirmation' => 'otra'])
-            ->assertSessionHasErrors(['name', 'email', 'rol_id', 'password']);
     }
 
     public function test_coordinador_aprueba_cuenta_pendiente(): void
