@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegistroController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\CosechaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IdcController;
 use App\Http\Controllers\LaborController;
 use App\Http\Controllers\PlantacionController;
 use App\Http\Controllers\ReporteController;
@@ -56,6 +57,7 @@ Route::middleware(['auth', 'cuenta.vigente'])->group(function () {
     // Consulta (todos los roles).
     Route::get('/labores', [LaborController::class, 'index'])->name('labores.index')->can('viewAny', Plantacion::class);
     Route::get('/cosechas', [CosechaController::class, 'index'])->name('cosechas.index')->can('viewAny', Plantacion::class);
+    Route::get('/idc', [IdcController::class, 'index'])->name('idc.index')->can('viewAny', Plantacion::class);
 
     // Registro y edición de labores, cosechas e IDC: coordinador/a y responsable (docente y estudiante solo consultan, D-03).
     Route::middleware('role:coordinador,responsable')->group(function () {
@@ -68,6 +70,7 @@ Route::middleware(['auth', 'cuenta.vigente'])->group(function () {
         Route::put('/cosechas/{cosecha}', [CosechaController::class, 'update'])->name('cosechas.update')->can('update', 'cosecha');
 
         Route::post('/plantaciones/{plantacion}/idc', [PlantacionController::class, 'calcularIdc'])->name('plantaciones.idc')->can('registrar', 'plantacion');
+        Route::post('/idc/recalcular', [IdcController::class, 'recalcular'])->name('idc.recalcular')->can('recalcular-idc');
     });
 
     Route::middleware('can:exportar')->group(function () {

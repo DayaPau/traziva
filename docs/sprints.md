@@ -135,23 +135,27 @@ D-01 a D-13 en [`decisiones.md`](decisiones.md).
 
 ---
 
-## Sprint 6 — Seguimiento y cosecha (23 nov – 4 dic) · PROPUESTA
+## Sprint 6 — Seguimiento y cosecha (23 nov – 4 dic) · EN CURSO — rama `sprint-6`
 
 **Objetivo:** registrar desde la interfaz todo el seguimiento de una plantación (labores, aplicaciones, eventos, cosechas, clima) con alertas visibles, para dejar de usar el libro de campo.
 
-| ID | Historia | Esfuerzo |
-|---|---|---|
-| S6-01 | Registrar labores culturales (tipo según el cultivo, fecha no futura ni anterior a la siembra) | M |
-| S6-02 | Registrar eventos fitosanitarios (plaga/enfermedad, fecha, nivel bajo/medio/alto) | S |
-| S6-03 | Registrar aplicaciones con varios productos y dosis estructurada; ligar a un evento | L |
-| S6-04 | Pantalla «Labores culturales»: listados con filtros (plantación, tipo, fechas) y edición auditada | M |
-| S6-05 | Registrar cosechas (Form Request): aprovechable calculado, acumulado por plantación y ciclo, IDC recalculado | M |
-| S6-06 | Pantalla «Cosecha y postcosecha» y clima referencial manual | M |
-| S6-07 | Alertas: registros incompletos, merma alta, retraso de cosecha, evento alto | M |
-| S6-08 | Calendario mensual de actividades por plantación | M (opcional si falta capacidad) |
-| S6-09 | Pruebas y documentación del sprint | M |
+| ID | Historia | Esfuerzo | Estado |
+|---|---|---|---|
+| S6-01 | Registrar labores culturales (tipo según el cultivo, fecha no futura ni anterior a la siembra) | M | Hecha (adelantada en el avance del 14-nov) |
+| S6-02 | Registrar eventos fitosanitarios (plaga/enfermedad, fecha, nivel bajo/medio/alto) | S | Pendiente |
+| S6-03 | Registrar aplicaciones con varios productos y dosis estructurada; ligar a un evento | L | Pendiente |
+| S6-04 | Pantalla «Labores culturales»: listados con filtros (plantación, tipo, fechas) y edición auditada | M | Hecha (avance 14-nov) |
+| S6-05 | Registrar cosechas (Form Request): aprovechable calculado, acumulado por plantación y ciclo, IDC recalculado | M | Hecha (avance 14-nov) |
+| S6-06 | Pantalla «Cosecha y postcosecha» y clima referencial manual | M | Pantalla hecha; clima pendiente |
+| S6-07 | Alertas: registros incompletos, merma alta, retraso de cosecha, evento alto | M | Pendiente |
+| S6-08 | Calendario mensual de actividades por plantación | M (opcional) | Pendiente |
+| S6-09 | Pruebas y documentación del sprint | M | En curso |
+| **S6-10** | **Registro normal con código de verificación por rol y límite de cuentas (D-16)** — pedido por el equipo el 24/11 | M | **Hecha** |
+| **S6-11** | **Sección «Índice de Desempeño»** (adelantada del Sprint 7): resumen por categoría, tabla comparativa con las 4 variables, filtros, explicación de la fórmula y «Recalcular todos» (coordinador/a y responsable) | M | **Hecha** |
 
-**Dependencias / preguntas antes de empezar:**
-1. Confirmar D-03 (docente y estudiante solo consultan) o definir qué registran.
+**Dependencias / preguntas:**
+1. ~~Confirmar D-03~~ → confirmado: docente y estudiante solo consultan.
 2. Umbral provisional de «merma alta» (propuesta: > 15 % de lo cosechado) y de «retraso» (propuesta: > 14 días después del inicio estimado sin cosecha). Se marcarán como provisionales en `config/traziva.php`.
+
+**Cómo probar S6-11:** cualquier usuario → menú **Índice de Desempeño** (`/idc`). Debe verse el aviso «referencial · fórmula en borrador», 4 tarjetas (alto/medio/bajo/incompleto; clic = filtrar), la tabla ordenada por puntaje con barras por variable y los datos faltantes, y al final «¿Cómo se calcula el IDC?». Docente y estudiante no ven «Recalcular todos» (403 si lo fuerzan).
 
